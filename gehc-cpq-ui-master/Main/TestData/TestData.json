@@ -1,0 +1,93 @@
+{
+  "TestData1": {
+    "ProductName": "0217-5357-800",
+    "Quantity": 3,
+    "AdjustmentType": "% Discount",
+    "AdjustmentAmount": 10.00
+  },
+  "TestData2": {
+    "ProductName": "1006-3796-000",
+    "Quantity": 4,
+    "AdjustmentType": "Discount Amount",
+    "AdjustmentAmount": 20.00
+  },
+  "updateQuantityAndApplyAdjustmentTestData": {
+    "Products": [ "0217-5357-800", "1006-3796-000", "1009-5570-000", "1009-8208-000", "1011-8059-000" ],
+    "updateQantityandAdjustMent": [
+      {
+        "ProductName": "0217-5357-800",
+        "Quantity": 4,
+        "AdjustMentType": "% Discount",
+        "AdjustMentAmount": 20.00
+      },
+      {
+        "ProductName": "1009-5570-000",
+        "Quantity": 3,
+        "AdjustMentType": "% Discount",
+        "AdjustMentAmount": 10.00
+      }
+    ]
+  },
+  "cloneProductTestData": {
+    "Products": [ "0217-5357-800", "1006-3796-000", "1009-5570-000", "1009-8208-000", "1011-8059-000" ],
+    "cloneProduct": [ "1009-5570-000", "1009-5570-000" ]
+  },
+  "Products": [
+    {
+      "ProductName": "Mobile Heartbeat – Subscription",
+      "OptionGroups": [
+        {
+          "OptionGroup": "MH-CURE",
+          "OptionProducts": [ "MHB-M11-EN-3YR", "MHB-M11-EN-5YR" ]
+        },
+        {
+          "OptionGroup": "Banyan",
+          "OptionProducts": [ "MHB-M21-PL-3YR", "MHB-M21-VG-3YR" ]
+        },
+        {
+          "OptionGroup": "Professional Services",
+          "OptionProducts": [ "OEM-MHB-PS-VB-SFD", "OEM-MHB-PS-EN-MFD", "OEM-MHB-PS-102", "OEM-MHB-PS-LF-OPT" ]
+        }
+      ]
+    },
+    {
+      "ProductName": "Mural Solutions USA",
+      "OptionGroups": [
+        {
+          "OptionGroup": "Mural Solution Offering",
+          "OptionProducts": [ "K1720KA", "K1720AE" ]
+        },
+        {
+          "OptionGroup": "Audio Video",
+          "OptionProducts": [ "K1720WR", "K1720XW" ]
+        }
+      ]
+    }
+  ],
+  "bundleProductsConstraintRule": [
+    {
+      "ProductName": "OnWatch Network Edge",
+      "OptionGroups": [
+        {
+          "OptionGroup": "GUIDED SELLING",
+          "OptionProducts": [
+            "Mural Standard Deployment",
+            "1 Year Premium Service Subscription",
+            "Yes"
+          ]
+        },
+        {
+          "OptionGroup": "Installation",
+          "OptionProducts": [
+            "OEM-SDWAN-INSTALL"
+          ]
+        }
+      ],
+      "constraintRuleOptionProduct": [
+        "How many hubs?",
+        "How many spoke sites?"
+      ]
+    }
+  ],
+  "addProductFromFavoriteTestData": { "favoriteName": "AP_GE" }
+} 

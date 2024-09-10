@@ -1,0 +1,18 @@
+{
+	"ChanceQuantityTestCase": {
+		"ProductCodes": [
+			"42140626",
+			"42541288",
+			"42701929",
+			"42541764"
+		]
+	},
+	"Verfity_TC_02": {
+		"ProductCodes": [
+			"0217-5357-800",
+			"1006-3796-000",
+			"1009-5570-000"
+		],
+		"QuanityChance": "2"
+	}
+}

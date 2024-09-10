@@ -1,0 +1,18 @@
+{
+  "Verify_TC_1001": {
+    "RecordType": "Proposal",
+    "SearchBy": "Name",
+    "Account": "Monmouth Medical Center Inc",
+    "ProposalName": "Test Proposal",
+    "Opportunity": "Monmouth Medical Center - Xeleris Upgrade",
+    "PriceList": "USA LCS"
+  },
+  "Verify_TC_1002": {
+    "RecordType": "Proposal",
+    "SearchBy": "Name",
+    "Account": "THOMSON REUTERS HK WLN TEST",
+    "ProposalName": "Test Proposal ",
+    "Opportunity": "TRConga Lapse & Resell Downgrade Approval/Incremental Rev. Cal. 1.0",
+    "PriceList": "Thomson Reuters Master - GBP Pricelist"
+  }
+}

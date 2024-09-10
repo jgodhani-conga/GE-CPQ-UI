@@ -1,0 +1,17 @@
+{
+  "Username": "congaplatformadmin@gehc.amer.turbo",
+  "Password": "Onetime123$",
+  "BaseUrl": "https://gehealthcare-amer--turbo.sandbox.lightning.force.com/lightning",
+  "https": null,
+  "idpName": "Salesforce Sandbox",
+  "tokenURL": "",
+  "userId": "",
+  "tenantURL": "",
+  "tenantId": "",
+  "clientId": "",
+  "clientSecret": "",
+  "grantType": "",
+  "apiuserId": "",
+  "organizationFriendlyId": "",
+  "organizationId": ""
+}
