@@ -733,7 +733,7 @@ namespace AutomationProject1.test
             driver.SwitchTo().Window(originalWindowHandle);
         }
 
-        [Test(Author = "Jay Godhani", Description = "TC_1007 : Mass Update in cart")]
+        [Test(Author = "Jay Godhani", Description = "TC_1009 : Mass Update in cart")]
         public void MassUpdate()
         {
             test = extent.CreateTest("Mass Update in cart");
@@ -831,7 +831,7 @@ namespace AutomationProject1.test
             driver.SwitchTo().Window(originalWindowHandle);
         }
 
-        [Test(Author = "Alay Patel", Description = "TC_1002 : Add Product to Cart From Favorite")]
+        [Test(Author = "Alay Patel", Description = "TC_1010 : Add Product to Cart From Favorite")]
         public void AddProductToCartFromFavorite()
         {
             test = extent.CreateTest("Add Product To cart");
@@ -896,7 +896,7 @@ namespace AutomationProject1.test
             driver.SwitchTo().Window(originalWindowHandle);
         }
 
-        [Test(Author = "Alay Patel", Description = "TC_1002 : Copy Product From Cart")]
+        [Test(Author = "Alay Patel", Description = "TC_1011 : Copy Product From Cart")]
         public void cloneProductFromCart()
         {
             test = extent.CreateTest("Add Product To cart");
@@ -944,7 +944,7 @@ namespace AutomationProject1.test
             driver.Close();
             driver.SwitchTo().Window(originalWindowHandle);
         }
-        [Test(Author = "Alay Patel", Description = "TC_1002 : Add Contrait rule Bundle Product")]
+        [Test(Author = "Alay Patel", Description = "TC_1012 : Add Contrait rule Bundle Product")]
         public void AddConstraitBudleProductToCart()
         {
             test = extent.CreateTest("Add Bundle Product To cart");

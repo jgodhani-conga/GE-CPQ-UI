@@ -8,7 +8,7 @@ namespace cpq_ui_master.Main
 {
     public class AppConfig
     {
-        public string baseUrl { get; set; }git in
+        public string baseUrl { get; set; }
         public string userName { get; set; }
         public string Password { get; set; }
         public string idpName { get; set; }
