@@ -89,5 +89,25 @@
       ]
     }
   ],
-  "addProductFromFavoriteTestData": { "favoriteName": "AP_GE" }
+  "addProductFromFavoriteTestData": {
+    "favoriteName": "MuralVirtualCare_Favorites"
+  },
+  "AbandonCartTestData": {
+    "Products": [ "0217-5357-800", "1006-3796-000", "1009-5570-000", "1009-8208-000", "1011-8059-000" ]
+  },
+  "FinalizeCartTestData": {
+    "Products": [ "0217-5357-800", "1006-3796-000", "1009-5570-000", "1009-8208-000", "1011-8059-000" ]
+  },
+  "CreateFavoriteTestData": {
+    "Products": [ "0217-5357-800", "1006-3796-000", "1009-5570-000", "1009-8208-000", "1011-8059-000" ],
+    "favoriteName": "TestFavorite"
+  },
+  "MassUpdateTestData": {
+    "Products": [ "0217-5357-800", "1006-3796-000", "1009-5570-000", "1009-8208-000", "1011-8059-000" ],
+    "favoriteName": "TestFavorite"
+  },
+  "DeleteProductTestData": {
+    "Products": [ "0217-5357-800", "1006-3796-000", "1009-5570-000", "1009-8208-000", "1011-8059-000" ],
+    "DeleteProducts": [ "0217-5357-800","1011-8059-000" ]
+  }
 } 

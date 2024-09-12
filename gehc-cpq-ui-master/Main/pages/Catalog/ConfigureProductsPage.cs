@@ -24,27 +24,27 @@ namespace cpq_ui_master.Main.pages.Catalog
         }
 
 
-        public void AddProductUsingJsonFile()
+        public void addProductUsingJsonFile()
         {
-            WaitForElementToLoad(configureProele.SearchProduct, SelectorType.XPath, maxWaitTime);
+            WaitForElementToLoad(configureProele.searchProduct, SelectorType.XPath, maxWaitTime);
             filePath = Path.Combine(solutionDirectory, "Main", "resources");
             string jsonFilePath = Path.Combine(filePath, "ProductCodes", "ProductCodes.json");
             var jsonData = JObject.Parse(File.ReadAllText(jsonFilePath))["Verfity_TC_02"];
             foreach (var productCode in jsonData["ProductCodes"])
             {
                 configureProele.findProductsSearch.SendKeys(productCode.ToString() + Keys.Enter); 
-                WaitForElementToLoad(configureProele.AddToCartButton, SelectorType.CssSelector, maxWaitTime);
-                configureProele.AddToCartButtons.Click();
+                WaitForElementToLoad(configureProele.addToCartButton, SelectorType.CssSelector, maxWaitTime);
+                configureProele.addToCartButtons.Click();
                 configureProele.findProductsSearch.Clear();
             }
         }
 
-        public void AddBundleProduct(string productname)
+        public void addBundleProduct(string productname)
         {
-            WaitForElementToLoad(configureProele.SearchProduct, SelectorType.XPath, maxWaitTime);
+            WaitForElementToLoad(configureProele.searchProduct, SelectorType.XPath, maxWaitTime);
             configureProele.findProductsSearch.SendKeys(productname.ToString() + Keys.Enter);
-            WaitForElementToLoad(configureProele.ConfigureButton, SelectorType.XPath, maxWaitTime);
-            IWebElement ConfigureBtn = driver.FindElement(By.XPath(configureProele.ConfigureButton));
+            WaitForElementToLoad(configureProele.configureButton, SelectorType.XPath, maxWaitTime);
+            IWebElement ConfigureBtn = driver.FindElement(By.XPath(configureProele.configureButton));
             ConfigureBtn.Click();
             WaitForElementToLoad("//md-pagination-wrapper//md-tab-item", SelectorType.XPath, maxWaitTime);
             IList<IWebElement> optionGroupNames = driver.FindElements(By.XPath("//md-pagination-wrapper//md-tab-item"));
@@ -54,17 +54,17 @@ namespace cpq_ui_master.Main.pages.Catalog
                 this.optionGroupName.Add(optionGroupName.Text);
             }
         }
-        public void AddBundleProduct(JToken productsData, ConfigureProductsPage configureProductsPage)
+        public void addBundleProduct(JToken productsData, ConfigureProductsPage configureProductsPage)
         {
             int totalRecord = productsData.Count();
             int count = 1;
             foreach (var productData in productsData)
             {
                 // Add each bundle product
-                WaitForElementToLoad(configureProele.SearchProduct, SelectorType.XPath, maxWaitTime);
+                WaitForElementToLoad(configureProele.searchProduct, SelectorType.XPath, maxWaitTime);
                 configureProele.findProductsSearch.SendKeys(productData["ProductName"].ToString() + Keys.Enter);
-                WaitForElementToLoad(configureProele.ConfigureButton, SelectorType.XPath, maxWaitTime);
-                IWebElement ConfigureBtn = driver.FindElement(By.XPath(configureProele.ConfigureButton));
+                WaitForElementToLoad(configureProele.configureButton, SelectorType.XPath, maxWaitTime);
+                IWebElement ConfigureBtn = driver.FindElement(By.XPath(configureProele.configureButton));
                 ConfigureBtn.Click();
                 WaitForElementToLoad("//md-pagination-wrapper//md-tab-item", SelectorType.XPath, maxWaitTime);
 
@@ -76,12 +76,12 @@ namespace cpq_ui_master.Main.pages.Catalog
                 }
 
                 // Add option products for each bundle
-                AddOptionProductsFromJson(productData, configureProductsPage);
+                addOptionProductsFromJson(productData, configureProductsPage);
 
                 if (count < totalRecord)
                 {
                     clickOnAddMoreProducts();
-                    WaitForCatalogPageToLoad();
+                    waitForCatalogPageToLoad();
                     count++;
                 }
 
@@ -98,7 +98,7 @@ namespace cpq_ui_master.Main.pages.Catalog
         }
        
        
-        private void AddOptionProductsFromJson(JToken productData, ConfigureProductsPage configureProductsPage)
+        private void addOptionProductsFromJson(JToken productData, ConfigureProductsPage configureProductsPage)
         {
             foreach (var optionGroup in productData["OptionGroups"])
             {
@@ -106,12 +106,12 @@ namespace cpq_ui_master.Main.pages.Catalog
                 foreach (var optionProduct in optionGroup["OptionProducts"])
                 {
                     string optionProductName = optionProduct.ToString();
-                    configureProductsPage.AddOptionProductForBundle(optionGroupName, optionProductName);
+                    configureProductsPage.addOptionProductForBundle(optionGroupName, optionProductName);
                 }
             }
 
         }
-        public void AddOptionProductForBundle(string optionGroupName, string optionProductName)
+        public void addOptionProductForBundle(string optionGroupName, string optionProductName)
         {
 
             string optionGroupXpath = configureProele.selectOptionGroup.Replace("{optionGroupName}", optionGroupName);
@@ -173,20 +173,20 @@ namespace cpq_ui_master.Main.pages.Catalog
         }
 
 
-        public void AddProductUsingCode(string productname) {
-            WaitForElementToLoad(configureProele.SearchProduct, SelectorType.XPath, maxWaitTime);
+        public void addProductUsingCode(string productname) {
+            WaitForElementToLoad(configureProele.searchProduct, SelectorType.XPath, maxWaitTime);
             configureProele.findProductsSearch.SendKeys(productname.ToString() + Keys.Enter);
-            WaitForElementToLoad(configureProele.AddToCartButton, SelectorType.CssSelector, maxWaitTime);
-            configureProele.AddToCartButtons.Click();
+            WaitForElementToLoad(configureProele.addToCartButton, SelectorType.CssSelector, maxWaitTime);
+            configureProele.addToCartButtons.Click();
             configureProele.findProductsSearch.Clear();
         }
 
-        public void WaitForCatalogPageToLoad()
+        public void waitForCatalogPageToLoad()
         {
-            FluentWaitUntilElementVisibleForXpath(configureProele.SearchProduct, maxWaitTime);
+            FluentWaitUntilElementVisibleForXpath(configureProele.searchProduct, maxWaitTime);
         }
 
-        public void ClickOnShoppingCart()
+        public void clickOnShoppingCart()
         {
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30)); // Adjust the timeout as needed
 
@@ -194,45 +194,45 @@ namespace cpq_ui_master.Main.pages.Catalog
             wait.Until(driver =>
             {
                 // Find the element and get its text
-                var miniCartTotal = driver.FindElement(By.XPath(configureProele.NumberOfItemInCart));
+                var miniCartTotal = driver.FindElement(By.XPath(configureProele.numberOfItemInCart));
                 string totalValueText = miniCartTotal.Text.Trim();
                 int totalValue = int.Parse(totalValueText);
                 return totalValue > 0;
             });
-            configureProele.ShoppingCartIcon.Click();
+            configureProele.shoppingCartIcon.Click();
         }
 
-        public void ClickOnViewCartButton()
+        public void clickOnViewCartButton()
         {
-            WaitForElementToLoad(configureProele.ViewCartbutton, SelectorType.CssSelector, maxWaitTime);
-            configureProele.ViewCartBtn.Click();
+            WaitForElementToLoad(configureProele.viewCartbutton, SelectorType.CssSelector, maxWaitTime);
+            configureProele.viewCartBtn.Click();
         }
 
         public int checkNumberOfProductInCart()
         {
-            var miniCartTotal = driver.FindElement(By.XPath(configureProele.NumberOfItemInCart));
+            var miniCartTotal = driver.FindElement(By.XPath(configureProele.numberOfItemInCart));
             string totalValueText = miniCartTotal.Text.Trim();
             int totalValue = int.Parse(totalValueText);
             return totalValue;
         }
 
-        public void ClickOnAbandonCart()
+        public void clickOnAbandonCart()
         {
-            WaitForElementToLoad(configureProele.AbandonCartButton, SelectorType.XPath, maxWaitTime);
-            configureProele.AbandonCartBtn.Click();
+            WaitForElementToLoad(configureProele.abandonCartButton, SelectorType.XPath, maxWaitTime);
+            configureProele.abandonCartBtn.Click();
         }
-        public void ClickOkButton()
+        public void clickOkButton()
         {
-            WaitForElementToLoad(configureProele.ClickOk, SelectorType.XPath, maxWaitTime);
-            configureProele.ClickOkBtn.Click();
+            WaitForElementToLoad(configureProele.clickOk, SelectorType.XPath, maxWaitTime);
+            configureProele.clickOkBtn.Click();
         }
        
-        public void ClickOnDeleteIcon()
+        public void clickOnDeleteIcon()
         {
             WaitForElementToLoad(configureProele.ClickOnDeleteIcon, SelectorType.XPath, maxWaitTime);
             configureProele.ClickOnDeleteIconBtn.Click();
         }
-        public void ClickOnSelectAllProduct()
+        public void clickOnSelectAllProduct()
         {
             WaitForElementToLoad(configureProele.ClickOnSelectAllProduct, SelectorType.XPath, maxWaitTime);
             configureProele.ClickOnSelectAllProductBtn.Click();
@@ -242,8 +242,8 @@ namespace cpq_ui_master.Main.pages.Catalog
             foreach (var productCode in productNames)
             {
                 configureProele.findProductsSearch.SendKeys(productCode.ToString() + Keys.Enter);
-                WaitForElementToLoad(configureProele.AddToCartButton, SelectorType.CssSelector, maxWaitTime);
-                configureProele.AddToCartButtons.Click();
+                WaitForElementToLoad(configureProele.addToCartButton, SelectorType.CssSelector, maxWaitTime);
+                configureProele.addToCartButtons.Click();
                 configureProele.findProductsSearch.Clear();
             }
         }

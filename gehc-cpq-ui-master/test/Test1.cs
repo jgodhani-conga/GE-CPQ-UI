@@ -91,9 +91,7 @@ namespace AutomationProject1.test
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-                Console.WriteLine(proposalDetailsPage.getProposalName());
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-                Console.WriteLine(ProposalDetailsPageUrl);
                 Assert.That(newProposalName.Equals(proposalDetailsPage.getProposalName()), "Proposal Name are not matching");
                 if (!driver.Url.Equals(this.ProposalDetailsPageUrl))
                     driver.Navigate().GoToUrl(this.ProposalDetailsPageUrl);
@@ -105,10 +103,6 @@ namespace AutomationProject1.test
             test = extent.CreateTest("Add Product To cart");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Add Product To cart");
 
-            string configJson = null;
-
-            // Initialize DevTools for network monitoring
-           
             jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
             var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
             string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
@@ -133,53 +127,14 @@ namespace AutomationProject1.test
             proposalDetailsPage.clickOnConfigureProductsForRLS();
 
             originalWindowHandle = driver.CurrentWindowHandle;
+            proposalDetailsPage.switchToNewWindow(originalWindowHandle);
 
-            // Switch to the new tab
-            foreach (string windowHandle in driver.WindowHandles)
-            {
-                if (windowHandle != originalWindowHandle)
-                {
-                    driver.SwitchTo().Window(windowHandle);
-                    break;
-                }
-            }
-
-            IDevTools devTools = driver as IDevTools;
-            var session = devTools.GetDevToolsSession();
-            var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
-            domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
-
-            domain.Network.ResponseReceived += (sender, e) =>
-            {
-                if (e.Response.Url.Contains("/status?includeConfigResponse=true&includes=price-breakups&includes=usage-tiers&includes=summary-groups&includes=adjustments&includes=line-items") && e.Response.Status == 200)
-                {
-                    Console.WriteLine($"Response URL: {e.Response.Url}");
-                    Console.WriteLine($"Response Status: {e.Response.Status}");
-                    var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
-                    {
-                        RequestId = e.RequestId
-                    }).Result;
-                    configJson = bodyResponse.Body;
-                }
-            };
-
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.AddProductUsingJsonFile();
-            configureProductsPage.ClickOnShoppingCart();
+            configureProductsPage.waitForCatalogPageToLoad();
+            configureProductsPage.addProductUsingJsonFile();
+            configureProductsPage.clickOnShoppingCart();
             Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
-            configureProductsPage.ClickOnViewCartButton();
+            configureProductsPage.clickOnViewCartButton();
 
-            if (!string.IsNullOrEmpty(configJson))
-            {
-                var parsedJson = JObject.Parse(configJson);
-                Console.WriteLine(parsedJson);
-                var expectedValue = parsedJson["IsPricingPending"]?.ToString();
-                Assert.That(expectedValue, Is.EqualTo("False"), "IsPricingPending field value did not match.");
-            }
-            else
-            {
-                Assert.Fail("configJson was not received.");
-            }
             driver.Close();
             driver.SwitchTo().Window(originalWindowHandle);
         }
@@ -190,171 +145,153 @@ namespace AutomationProject1.test
             test = extent.CreateTest("Add Bundle Product To cart");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Add Product To cart");
 
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+            try
+            {
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
 
-            var productData = JObject.Parse(File.ReadAllText(TestDatafilePath))["Products"];
+                var productData = JObject.Parse(File.ReadAllText(TestDatafilePath))["Products"];
 
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
 
-            //Switch to the new tab
-            originalWindowHandle = driver.CurrentWindowHandle;
-            proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+                //Switch to the new tab
+                originalWindowHandle = driver.CurrentWindowHandle;
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+                configureProductsPage.waitForCatalogPageToLoad();
+                configureProductsPage.addBundleProduct(productData, configureProductsPage);
 
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.AddBundleProduct(productData, configureProductsPage);
-
-            configureProductsPage.clickOnGoTopricing();
-            cartPage.waitForCartPageToLoad();
-
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
+                configureProductsPage.clickOnGoTopricing();
+                cartPage.waitForCartPageToLoad();
+            }
+            catch (Exception ex)
+            {
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+            }
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
+            }
+           
         }
 
-        [Test(Author = "Alay Patel", Description = "TC_1004 : Update Quanity and Apply Adjustment")]
-        public void UpdateQuanityandApplyAdjustment()
+        [Test(Author = "Alay Patel", Description = "TC_1004 : Update Quantity and Apply Adjustment")]
+        public void UpdateQuantityandApplyAdjustment()
         {
-            test = extent.CreateTest("Update Quanity and Apply Adjustment");
-            ReportsGenerationClass.LogInfo(test, "Starting Test - Update Quanity and Apply Adjustment");
+            test = extent.CreateTest("Update Quantity and Apply Adjustment");
+            ReportsGenerationClass.LogInfo(test, "Starting Test - Update Quantity and Apply Adjustment");
 
-            string configJson = null;
-            string requestId = null;
-
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
-            var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
-            var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
-
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage
-                .waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
-
-            originalWindowHandle = driver.CurrentWindowHandle;
-
-            // Switch to the new tab
-            foreach (string windowHandle in driver.WindowHandles)
+            try
             {
-                if (windowHandle != originalWindowHandle)
+                string configJson = null;
+                string statusRequestId = null;
+
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+                var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
+                var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
+
+                var updateQuantityAndApplyAdjustmentTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["updateQuantityAndApplyAdjustmentTestData"];
+
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
+
+                // Switch to the new tab
+                originalWindowHandle = driver.CurrentWindowHandle;
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+
+                configureProductsPage.waitForCatalogPageToLoad();
+                configureProductsPage.addProductsToCart(updateQuantityAndApplyAdjustmentTestData["Products"]);
+                configureProductsPage.clickOnShoppingCart();
+                configureProductsPage.clickOnViewCartButton();
+                cartPage.waitForCartPageToLoad();
+                IDevTools devTools = driver as IDevTools;
+                var session = devTools.GetDevToolsSession();
+                var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
+                var tcs = new TaskCompletionSource<bool>();
+                domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
+
+                domain.Network.RequestWillBeSent += (sender, e) =>
                 {
-                    driver.SwitchTo().Window(windowHandle);
-                    break;
-                }
-            }
-
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.AddProductUsingCode(testData1["ProductName"].ToString());
-            configureProductsPage.AddProductUsingCode(testData2["ProductName"].ToString());
-            configureProductsPage.AddProductUsingCode("1009-5570-000");
-            configureProductsPage.AddProductUsingCode("1009-8208-000");
-            configureProductsPage.ClickOnShoppingCart();
-            configureProductsPage.ClickOnViewCartButton();
-
-
-
-            cartPage.waitForCartPageToLoad();
-
-            cartPage.updateQuanityPerProduct(testData1["ProductName"].ToString(), int.Parse(testData1["Quantity"].ToString()));
-            cartPage.updateQuanityPerProduct(testData2["ProductName"].ToString(), int.Parse(testData2["Quantity"].ToString()));
-            cartPage.updateQuanityPerProduct("1009-5570-000", int.Parse(testData1["Quantity"].ToString()));
-            cartPage.updateQuanityPerProduct("1009-8208-000", int.Parse(testData2["Quantity"].ToString()));
-
-
-
-            IDevTools devTools = driver as IDevTools;
-            var session = devTools.GetDevToolsSession();
-            var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
-            domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
-
-            domain.Network.RequestWillBeSent += (sender, e) =>
-
-            {
-                if (e.Request.Url.Contains("/status?includeConfigResponse=true&includes=price-breakups&includes=usage-tiers&includes=summary-groups&includes=adjustments&includes=line-items&includes=line-items.pricelist&includes=line-items.product&includes=line-items.pricelistitem") && e.Request.Method.Equals("GET"))
-                {
-                    requestId = e.RequestId;
-                }
-
-            };
-            domain.Network.ResponseReceived += (sender, e) =>
-            {
-                if (e.Response.Url.Contains("/status?includeConfigResponse=true&includes=price-breakups&includes=usage-tiers&includes=summary-groups&includes=adjustments&includes=line-items&includes=line-items.pricelist&includes=line-items.product&includes=line-items.pricelistitem") && e.Response.Status.Equals(200))
-                {
-                    Console.WriteLine($"Response URL: {e.Response.Url}");
-                    Console.WriteLine($"Response Status: {e.Response.Status}");
-
-                    // Fetch the response body asynchronously
-                    var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                    if (e.Request.Url.Contains("/status?includeConfigResponse=true&includes=price-breakups&includes=usage-tiers&includes=summary-groups&includes=adjustments&includes=line-items&includes=line-items.pricelist&includes=line-items.product&includes=line-items.pricelistitem&primaryLineNumbers") && e.Request.Method.Equals("GET"))
                     {
-                        RequestId = requestId
-                    }).Result;
+                        statusRequestId = e.RequestId;
+                    }
+                };
+                // Capture response details
+                domain.Network.ResponseReceived += (sender, e) =>
+                {
+                    // Ensure that the request method is DELETE
+                    if (e.Response.Url.Contains("/status?includeConfigResponse=true&includes=price-breakups&includes=usage-tiers&includes=summary-groups&includes=adjustments&includes=line-items&includes=line-items.pricelist&includes=line-items.product&includes=line-items.pricelistitem") && e.Response.Status.Equals(200))
+                    {
+                        Console.WriteLine($"Response URL: {e.Response.Url}");
+                        Console.WriteLine($"Response Status: {e.Response.Status}");
+                        // Fetch the response body asynchronously
+                        var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                        {
+                            RequestId = statusRequestId
+                        }).Result;
+                        configJson = bodyResponse.Body;
+                    }
+                };
+                cartPage.updateQuanityPerProduct(updateQuantityAndApplyAdjustmentTestData["updateQantityandAdjustMent"]);
+                cartPage.applyAdjustmentPerProduct(updateQuantityAndApplyAdjustmentTestData["updateQantityandAdjustMent"]);
+                cartPage.clickRepriceBtn();
+                cartPage.waitForUpdatingCart();
+                cartPage.AssertUpdateQuantity(updateQuantityAndApplyAdjustmentTestData["updateQantityandAdjustMent"]);
 
-                    configJson = bodyResponse.Body;
-                    Console.WriteLine("ConfigJson=" + configJson);
-
-
+                // Wait for the specific request to finish
+                if (!string.IsNullOrEmpty(configJson))
+                {
+                    var parsedJson = JObject.Parse(configJson);
+                    Console.WriteLine("parsedJson: " + parsedJson);
                 }
-            };
-
-            cartPage.ClickRepriceBtn();
-            Thread.Sleep(5000);
-            cartPage.WaitForProgressBarToComplete();
-
-            cartPage.waitForUpdatingCart();
-            cartPage.WaitForProgressBarToComplete();
-
-            cartPage.waitForUpdatingCart();
-
-            if (!string.IsNullOrEmpty(configJson))
-            {
-                var parsedJson = JObject.Parse(configJson);
-
-                var LineItems = parsedJson["CartResponse"]["LineItems"];
-                Console.WriteLine("Lineitem =" + LineItems);
-
-                var item = LineItems
-               .OfType<JObject>()
-               .FirstOrDefault(x => x["Name"]?.ToString() == testData1["ProductName"].ToString());
-                Console.WriteLine("item=" + item);
-                Assert.That(testData1["Quantity"].ToString().Equals(item["Quantity"].ToString()), "Quantity1 is not matching");
+                else
+                {
+                    Assert.Fail("configJson was not received.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Assert.Fail("configJson was not received.");
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
             }
-
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
+            }
         }
 
         [Test(Author = "Jay Godhani", Description = "TC_1005 : Abandon The Cart")]
@@ -363,92 +300,50 @@ namespace AutomationProject1.test
             test = extent.CreateTest("Abandon the cart");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Abandon the cart");
 
-            string configJson = null;
-            string requestUrl = null;
-            string requestMethod = null;
-            string requestId = null;
-
-
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
-            var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
-            var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
-
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
-
-            originalWindowHandle = driver.CurrentWindowHandle;
-
-            // Switch to the new tab
-            foreach (string windowHandle in driver.WindowHandles)
+            try
             {
-                if (windowHandle != originalWindowHandle)
-                {
-                    driver.SwitchTo().Window(windowHandle);
-                    break;
-                }
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+                var abandonCartTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["AbandonCartTestData"];
+
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
+                originalWindowHandle = driver.CurrentWindowHandle;
+                // Switch to the new tab
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+
+                configureProductsPage.waitForCatalogPageToLoad();
+                configureProductsPage.addProductsToCart(abandonCartTestData["Products"]);
+                configureProductsPage.clickOnShoppingCart();
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                configureProductsPage.clickOnViewCartButton();
+                configureProductsPage.clickOnAbandonCart();
+                configureProductsPage.clickOkButton();
             }
-
-            IDevTools devTools = driver as IDevTools;
-            var session = devTools.GetDevToolsSession();
-            var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
-            domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
-
-            domain.Network.RequestWillBeSent += (sender, e) =>
+            catch (Exception ex)
             {
-                requestUrl = e.Request.Url;
-                requestMethod = e.Request.Method;
-                requestId = e.RequestId;
-                if (e.Request.Url.Contains("/api/cart/v1/carts") && requestMethod.Equals("DELETE", StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine($"Request URL: {requestUrl}");
-                    Console.WriteLine($"Request Method: {requestMethod}");
-                }
-                   
-
-            };
-
-            domain.Network.ResponseReceived += (sender, e) =>
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+            }
+            finally
             {
-                if (e.Response.Url.Contains("/api/cart/v1/carts") && requestMethod.Equals("DELETE", StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine($"Response URL: {e.Response.Url}");
-                    Console.WriteLine($"Response Status: {e.Response.Status}");
-                    var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
-                    {
-                        RequestId = e.RequestId
-                    }).Result;
-                    configJson = bodyResponse.Body;
-                    Console.WriteLine("ConfigJson=" + configJson);
-                }
-            };
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.AddProductUsingJsonFile();
-            configureProductsPage.ClickOnShoppingCart();
-            Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
-            configureProductsPage.ClickOnViewCartButton();
-
-            configureProductsPage.ClickOnAbandonCart();
-            configureProductsPage.ClickOkButton();
-
-            Thread.Sleep(5000);
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
+            }
 
         }
 
@@ -458,106 +353,88 @@ namespace AutomationProject1.test
             test = extent.CreateTest("Delete a Product in Cart");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Delete a Product in Cart");
 
-            string configJson = null;
-            string requestUrl = null;
-            string requestMethod = null;
-            string requestId = null;
-
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
-            var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
-            var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
-
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
-            originalWindowHandle = driver.CurrentWindowHandle;
-
-            // Switch to the new tab
-            foreach (string windowHandle in driver.WindowHandles)
+            try
             {
-                if (windowHandle != originalWindowHandle)
+                string configJson = null;
+                string requestUrl = null;
+                string requestMethod = null;
+                string requestId = null;
+
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+                var deleteProductTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["DeleteProductTestData"];
+
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
+                originalWindowHandle = driver.CurrentWindowHandle;
+
+                // Switch to the new tab
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+
+                IDevTools devTools = driver as IDevTools;
+                var session = devTools.GetDevToolsSession();
+                var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
+                domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
+
+                domain.Network.RequestWillBeSent += (sender, e) =>
                 {
-                    driver.SwitchTo().Window(windowHandle);
-                    break;
-                }
-            }
-
-            IDevTools devTools = driver as IDevTools;
-            var session = devTools.GetDevToolsSession();
-            var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
-            domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
-
-            domain.Network.RequestWillBeSent += (sender, e) =>
-            {
-                if (e.Request.Url.Contains("/api/cart/v1/carts"))
-                {
-                    requestId = e.RequestId;
-                    Console.WriteLine($"Request URL: {requestUrl}");
-                    Console.WriteLine($"Request Method: {requestMethod}");
-                }
-               
-            };
-
-            domain.Network.ResponseReceived +=  (sender, e) =>
-            {
-                if (e.Response.Url.Contains("/api/cart/v1/carts") && e.Response.Status.Equals(202))
-                {
-                    Console.WriteLine($"Response URL: {e.Response.Url}");
-                    Console.WriteLine($"Response Status: {e.Response.Status}");
-
-                    // Fetch the response body asynchronously
-                    var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                    if (e.Request.Url.Contains("/api/cart/v1/carts"))
                     {
-                        RequestId = requestId
-                    }).Result;
+                        requestId = e.RequestId;
+                        Console.WriteLine($"Request URL: {requestUrl}");
+                        Console.WriteLine($"Request Method: {requestMethod}");
+                    }
 
-                    configJson = bodyResponse.Body;
-                    Console.WriteLine("ConfigJson=" + configJson);
-                }
-            };
-            
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.AddProductUsingJsonFile();
-            configureProductsPage.ClickOnShoppingCart();
-            Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
-            configureProductsPage.ClickOnViewCartButton();
-            cartPage.waitForCartPageToLoad();
+                };
 
-            cartPage.ClickOnCheckBoxA("1009-5570-000");
-            configureProductsPage.ClickOnDeleteIcon();
-            Thread.Sleep(5000);
-            if (!string.IsNullOrEmpty(configJson))
-            {
-                var parsedJson = JObject.Parse(configJson);
-                Console.WriteLine("Parsed Json=" + parsedJson);
-                var title = parsedJson["Title"]?.ToString();
-                var expectedTitle = "Product(s) deleted.";
+                domain.Network.ResponseReceived += (sender, e) =>
+                {
+                    if (e.Response.Url.Contains("/api/cart/v1/carts") && e.Response.Status.Equals(202))
+                    {
 
-                Assert.That(title, Is.EqualTo(expectedTitle), "The Title field does not match the expected value.");
+                        // Fetch the response body asynchronously
+                        var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                        {
+                            RequestId = requestId
+                        }).Result;
+                        configJson = bodyResponse.Body;
+                    }
+                };
 
+                configureProductsPage.waitForCatalogPageToLoad();
+                configureProductsPage.addProductsToCart(deleteProductTestData["Products"]);
+                configureProductsPage.clickOnShoppingCart();
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                configureProductsPage.clickOnViewCartButton();
+                cartPage.waitForCartPageToLoad();
+                cartPage.clickOnCheckBox(deleteProductTestData["DeleteProducts"]);
+                configureProductsPage.clickOnDeleteIcon();
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("ConfigJson was not received.");
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+            }
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
             }
 
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
         }
 
         [Test(Author = "Jay Godhani", Description = "TC_1007 : Finalize cart")]
@@ -566,77 +443,74 @@ namespace AutomationProject1.test
             test = extent.CreateTest("Finalizing Cart");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Finalizing cart");
 
-            string configJson = null;
-
-
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
-            var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
-            var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
-
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
-            originalWindowHandle = driver.CurrentWindowHandle;
-
-            // Switch to the new tab
-            foreach (string windowHandle in driver.WindowHandles)
+            try
             {
-                if (windowHandle != originalWindowHandle)
-                {
-                    driver.SwitchTo().Window(windowHandle);
-                    break;
-                }
-            }
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+                var finalizeCartTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["FinalizeCartTestData"];
+               
 
-            IDevTools devTools = driver as IDevTools;
-            var session = devTools.GetDevToolsSession();
-            var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
-            domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
+                originalWindowHandle = driver.CurrentWindowHandle;
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
 
-            domain.Network.ResponseReceived += (sender, e) =>
-            {
-                if (e.Response.Url.Contains("/status?includeConfigResponse=true"))
+                IDevTools devTools = driver as IDevTools;
+                var session = devTools.GetDevToolsSession();
+                var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
+                domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
+
+                domain.Network.ResponseReceived += (sender, e) =>
                 {
-                    Console.WriteLine($"Response URL: {e.Response.Url}");
-                    Console.WriteLine($"Response Status: {e.Response.Status}");
-                    var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                    if (e.Response.Url.Contains("/status?includeConfigResponse=true"))
                     {
-                        RequestId = e.RequestId
-                    }).Result;
-                    configJson = bodyResponse.Body;
-                }
-            };
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.AddProductUsingJsonFile();
-            configureProductsPage.ClickOnShoppingCart();
-            Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
-            configureProductsPage.ClickOnViewCartButton();
-            cartPage.waitForCartPageToLoad();
+                        Console.WriteLine($"Response URL: {e.Response.Url}");
+                        Console.WriteLine($"Response Status: {e.Response.Status}");
+                        var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                        {
+                            RequestId = e.RequestId
+                        }).Result;
+                        configJson = bodyResponse.Body;
+                    }
+                };
+                configureProductsPage.waitForCatalogPageToLoad();
+                configureProductsPage.addProductsToCart(finalizeCartTestData["Products"]);
+                configureProductsPage.clickOnShoppingCart();
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                configureProductsPage.clickOnViewCartButton();
+                cartPage.waitForCartPageToLoad();
 
-            cartPage.ClickOnFinalize();
-            proposalDetailsPage.clickOnRelatedTab();
+                cartPage.clickOnFinalize();
+                proposalDetailsPage.clickOnRelatedTab();
 
-
-            proposalDetailsPage.waitForProposalDetailPageToLoad();
-            proposalDetailsPage.clickOnConfigureIcon();
-            Assert.That("Finalized".Equals(proposalDetailsPage.CheckFinalize()), "Cart Is Not Finalized");
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
+                proposalDetailsPage.waitForProposalDetailPageToLoad();
+                proposalDetailsPage.clickOnConfigureIcon();
+                Assert.That("Finalized".Equals(proposalDetailsPage.CheckFinalize()), "Cart Is Not Finalized");
+            }
+            catch (Exception ex)
+            {
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+            }
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
+            }
         }
 
         [Test(Author = "Jay Godhani", Description = "TC_1008 : Create a Favorite in cart")]
@@ -645,347 +519,337 @@ namespace AutomationProject1.test
             test = extent.CreateTest("Create a Favorite in cart");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Create a Favorite Product in Cart");
 
-            string configJson = null;
-            var tcs = new TaskCompletionSource<string>();
-
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
-            var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
-            var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
-
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
-            originalWindowHandle = driver.CurrentWindowHandle;
-
-            foreach (string windowHandle in driver.WindowHandles)
+            try
             {
-                if (windowHandle != originalWindowHandle)
-                {
-                    driver.SwitchTo().Window(windowHandle);
-                    break;
-                }
-            }
+                string configJson = null;
+                var tcs = new TaskCompletionSource<string>();
 
-            IDevTools devTools = driver as IDevTools;
-            var session = devTools.GetDevToolsSession();
-            var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
-            domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+                var createFavoriteTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["CreateFavoriteTestData"];
 
-            domain.Network.ResponseReceived += async (sender, e) =>
-            {
-                if (e.Response.Url.Contains("/catalog/v1/favorites") && e.Response.Status.Equals(201) )
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
+                originalWindowHandle = driver.CurrentWindowHandle;
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+
+                IDevTools devTools = driver as IDevTools;
+                var session = devTools.GetDevToolsSession();
+                var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
+                domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
+
+                domain.Network.ResponseReceived += async (sender, e) =>
                 {
-                    Console.WriteLine($"Response URL: {e.Response.Url}");
-                    Console.WriteLine($"Response Status: {e.Response.Status}");
-                    var bodyResponse = await domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                    if (e.Response.Url.Contains("/catalog/v1/favorites") && e.Response.Status.Equals(201))
                     {
-                        RequestId = e.RequestId
-                    });
-                    configJson = bodyResponse.Body;
-                    tcs.SetResult(configJson);
+                        Console.WriteLine($"Response URL: {e.Response.Url}");
+                        Console.WriteLine($"Response Status: {e.Response.Status}");
+                        var bodyResponse = await domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                        {
+                            RequestId = e.RequestId
+                        });
+                        configJson = bodyResponse.Body;
+                        tcs.SetResult(configJson);
+                    }
+                };
+                configureProductsPage.waitForCatalogPageToLoad();
+                configureProductsPage.addProductsToCart(createFavoriteTestData["Products"]);
+                configureProductsPage.clickOnShoppingCart();
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                configureProductsPage.clickOnViewCartButton();
+                cartPage.waitForCartPageToLoad();
+
+                configureProductsPage.clickOnSelectAllProduct();
+                favoritePage.clickOnFavorite();
+
+                string baseString = createFavoriteTestData["favoriteName"].ToString();
+                string currentDateTime = DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss");
+                string resultString = $"{baseString}_{currentDateTime}";
+
+                favoritePage.enterFavoriteName(resultString);
+                favoritePage.clickOnSaveBtn();
+
+                string responseJson = await tcs.Task;
+
+                if (!string.IsNullOrEmpty(responseJson))
+                {
+                    var parsedJson = JObject.Parse(responseJson);
+                    Assert.That(resultString.Equals(parsedJson["Name"].ToString()), "Favorite Name is NOt Matching");
                 }
-            };
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.AddProductUsingJsonFile();
-            configureProductsPage.ClickOnShoppingCart();
-            Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
-            configureProductsPage.ClickOnViewCartButton();
-            cartPage.waitForCartPageToLoad();
-
-            configureProductsPage.ClickOnSelectAllProduct();
-            favoritePage.ClickOnFavorite();
-           
-            string baseString = "JPG_Fav_1";
-            string currentDateTime = DateTime.Now.ToString("dd-MM-yyyy_HH:mm:ss");
-            string resultString = $"{baseString}_{currentDateTime}";
-
-            favoritePage.EnterFavoriteName(resultString);
-            favoritePage.ClickOnSaveBtn();
-
-            string responseJson = await tcs.Task;
-
-            if (!string.IsNullOrEmpty(responseJson))
-            {
-                var parsedJson = JObject.Parse(responseJson);
-                Assert.That(resultString.Equals(parsedJson["Name"].ToString()), "Favorite Name is NOt Matching");
+                else
+                {
+                    Assert.Fail("configJson was not received.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Assert.Fail("configJson was not received.");
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+            }
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
             }
 
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
         }
 
-        [Test(Author = "Jay Godhani", Description = "TC_1009 : Mass Update in cart")]
+        [Test(Author = "Jay Godhani", Description = "TC_1007 : Mass Update in cart")]
         public void MassUpdate()
         {
             test = extent.CreateTest("Mass Update in cart");
             ReportsGenerationClass.LogInfo(test, "Mass Update in cart");
 
-            string configJson = null;
-
-
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
-            var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
-            var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
-
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
-            Thread.Sleep(5000);
-            originalWindowHandle = driver.CurrentWindowHandle;
-
-            // Switch to the new tab
-            foreach (string windowHandle in driver.WindowHandles)
+            try
             {
-                if (windowHandle != originalWindowHandle)
+                string configJson = null;
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+                var massUpdateTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["MassUpdateTestData"];
+
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
+
+                originalWindowHandle = driver.CurrentWindowHandle;
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+
+                configureProductsPage.waitForCatalogPageToLoad();
+                configureProductsPage.addProductsToCart(massUpdateTestData["Products"]);
+                configureProductsPage.clickOnShoppingCart();
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                configureProductsPage.clickOnViewCartButton();
+                cartPage.waitForCartPageToLoad();
+                IDevTools devTools = driver as IDevTools;
+                var session = devTools.GetDevToolsSession();
+                var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
+                domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
+
+                domain.Network.ResponseReceived += (sender, e) =>
                 {
-                    driver.SwitchTo().Window(windowHandle);
-                    break;
-                }
-            }
-
-
-          
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.AddProductUsingJsonFile();
-            configureProductsPage.ClickOnShoppingCart();
-            Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
-            configureProductsPage.ClickOnViewCartButton();
-            cartPage.waitForCartPageToLoad();
-            IDevTools devTools = driver as IDevTools;
-            var session = devTools.GetDevToolsSession();
-            var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
-            domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
-
-            domain.Network.ResponseReceived += (sender, e) =>
-            {
-                if (e.Response.Url.Contains("/status?includeConfigResponse=true&includes=price-breakups&includes=usage-tiers&includes=summary-groups&includes=adjustments&includes=line-items&includes=line-items.pricelist&includes=line-items.product&includes=line-items.pricelistitem&includes=line-items.option&primaryLineNumbers=1,2") && e.Response.Status.Equals(200))
-                {
-                    Console.WriteLine($"Response URL: {e.Response.Url}");
-                    Console.WriteLine($"Response Status: {e.Response.Status}");
-                    var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                    if (e.Response.Url.Contains("/status?includeConfigResponse=true&includes=price-breakups&includes=usage-tiers&includes=summary-groups&includes=adjustments&includes=line-items&includes=line-items.pricelist&includes=line-items.product&includes=line-items.pricelistitem&includes=line-items.option&primaryLineNumbers=1,2") && e.Response.Status.Equals(200))
                     {
-                        RequestId = e.RequestId
-                    }).Result;
-                    configJson = bodyResponse.Body;
-                    Console.WriteLine("ConfigJson=" + configJson);
-                }
-            };
-            configureProductsPage.ClickOnSelectAllProduct();
-            cartPage.ClickOnMassUpdate();
-            cartPage.UpdateQuantityInMassUpdate();
-            cartPage.ClickOnApplyButton();
-            cartPage.WaitForProgressBarToComplete();
-            cartPage.waitForUpdatingCart();
-            cartPage.WaitForProgressBarToComplete();
+                        Console.WriteLine($"Response URL: {e.Response.Url}");
+                        Console.WriteLine($"Response Status: {e.Response.Status}");
+                        var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
+                        {
+                            RequestId = e.RequestId
+                        }).Result;
+                        configJson = bodyResponse.Body;
+                    }
+                };
+                configureProductsPage.clickOnSelectAllProduct();
+                cartPage.clickOnMassUpdate();
+                cartPage.updateQuantityInMassUpdate();
+                cartPage.clickOnApplyButton();
+                cartPage.waitForProgressBarToComplete();
+                cartPage.waitForUpdatingCart();
+                cartPage.waitForProgressBarToComplete();
 
-            cartPage.waitForUpdatingCart();
-           
-
-            if (!string.IsNullOrEmpty(configJson))
-            {
-                var parsedJson = JObject.Parse(configJson);
-                Console.WriteLine("ParsedJson=" + parsedJson);
-                var LineItems = parsedJson["CartResponse"]["LineItems"];
-                Console.WriteLine("Lineitem =" + LineItems);
-
+                cartPage.waitForUpdatingCart();
             }
-            else
+            catch (Exception ex)
             {
-                Assert.Fail("configJson was not received.");
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
             }
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
+            }
+ 
         }
 
-        [Test(Author = "Alay Patel", Description = "TC_1010 : Add Product to Cart From Favorite")]
+        [Test(Author = "Alay Patel", Description = "TC_1002 : Add Product to Cart From Favorite")]
         public void AddProductToCartFromFavorite()
         {
             test = extent.CreateTest("Add Product To cart");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Add Product To Cart from Favorite");
 
-            string configJson = null;
-
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
-            var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
-            var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
-
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
-
-            originalWindowHandle = driver.CurrentWindowHandle;
-            proposalDetailsPage.switchToNewWindow(originalWindowHandle);
-
-            // Initialize DevTools for network monitoring
-            IDevTools devTools = driver as IDevTools;
-            var session = devTools.GetDevToolsSession();
-            var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
-            domain.Network.Enable(new OpenQA.Selenium.DevTools.V127.Network.EnableCommandSettings());
-
-            domain.Network.ResponseReceived += (sender, e) =>
+            try
             {
-                if (e.Response.Url.Contains("/status?includeConfigResponse=true&includes=price-breakups&includes=usage-tiers&includes=summary-groups&includes=adjustments&includes=line-items") && e.Response.Status == 200)
-                {
-                    Console.WriteLine($"Response URL: {e.Response.Url}");
-                    Console.WriteLine($"Response Status: {e.Response.Status}");
-                    var bodyResponse = domain.Network.GetResponseBody(new OpenQA.Selenium.DevTools.V127.Network.GetResponseBodyCommandSettings
-                    {
-                        RequestId = e.RequestId
-                    }).Result;
-                    configJson = bodyResponse.Body;
-                }
-            };
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
 
-            configureProductsPage.WaitForCatalogPageToLoad();
-            favoritePage.addProductFromFavorite("AP_GE");
-            configureProductsPage.ClickOnShoppingCart();
-            Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
-            configureProductsPage.ClickOnViewCartButton();
-            cartPage.waitForCartPageToLoad();
-          
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
+                var addProductFromFavoriteTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["addProductFromFavoriteTestData"];
+
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
+
+                originalWindowHandle = driver.CurrentWindowHandle;
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+
+                configureProductsPage.waitForCatalogPageToLoad();
+                favoritePage.addProductFromFavorite(addProductFromFavoriteTestData["favoriteName"].ToString());
+                configureProductsPage.clickOnShoppingCart();
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                configureProductsPage.clickOnViewCartButton();
+                cartPage.waitForCartPageToLoad();
+            }
+            catch (Exception ex)
+            {
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+            }
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
+            }
+
         }
 
-        [Test(Author = "Alay Patel", Description = "TC_1011 : Copy Product From Cart")]
+        [Test(Author = "Alay Patel", Description = "TC_1002 : Copy Product From Cart")]
         public void cloneProductFromCart()
         {
-            test = extent.CreateTest("Add Product To cart");
-            ReportsGenerationClass.LogInfo(test, "Starting Test - Add Product To cart");
+            try
+            {
+                test = extent.CreateTest("Add Product To cart");
+                ReportsGenerationClass.LogInfo(test, "Starting Test - Add Product To cart");
 
-            string configJson = null;
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+                var cloneProductTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["cloneProductTestData"];
 
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
-            var cloneProductTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["cloneProductTestData"];
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
 
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
+                originalWindowHandle = driver.CurrentWindowHandle;
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
 
-            originalWindowHandle = driver.CurrentWindowHandle;
-            proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+                configureProductsPage.waitForCatalogPageToLoad();
+                configureProductsPage.addProductsToCart(cloneProductTestData["Products"]);
+                configureProductsPage.clickOnShoppingCart();
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                configureProductsPage.clickOnViewCartButton();
+                cartPage.waitForCartPageToLoad();
 
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.addProductsToCart(cloneProductTestData["Products"]);
-            configureProductsPage.ClickOnShoppingCart();
-            Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
-            configureProductsPage.ClickOnViewCartButton();
-            cartPage.waitForCartPageToLoad();
+                cartPage.clickOnCheckBox(cloneProductTestData["cloneProduct"]);
+                cartPage.clickOnCloneBtn();
+                cartPage.checkAssertionItemCloneOrNot(cloneProductTestData["cloneProduct"]);
+            }
+            catch (Exception ex)
+            {
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+            }
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
+            }
 
-            cartPage.ClickOnCheckBox(cloneProductTestData["cloneProduct"]);
-            cartPage.clickOnCloneBtn();
-            cartPage.checkAssertionItemCloneOrNot(cloneProductTestData["cloneProduct"]);
-
-
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
         }
-        [Test(Author = "Alay Patel", Description = "TC_1012 : Add Contrait rule Bundle Product")]
+        [Test(Author = "Alay Patel", Description = "TC_1002 : Add Contrait rule Bundle Product")]
         public void AddConstraitBudleProductToCart()
         {
-            test = extent.CreateTest("Add Bundle Product To cart");
-            ReportsGenerationClass.LogInfo(test, "Starting Test - Add Product To cart");
+            try
+            {
+                test = extent.CreateTest("Add Bundle Product To cart");
+                ReportsGenerationClass.LogInfo(test, "Starting Test - Add Product To cart");
 
-            string configJson = null;
+                string configJson = null;
 
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
 
-            var productData = JObject.Parse(File.ReadAllText(TestDatafilePath))["bundleProductsConstraintRule"];
+                var productData = JObject.Parse(File.ReadAllText(TestDatafilePath))["bundleProductsConstraintRule"];
 
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
 
-            // Switch to the new tab
-            originalWindowHandle = driver.CurrentWindowHandle;
-            proposalDetailsPage.switchToNewWindow(originalWindowHandle);
-            configureProductsPage.WaitForCatalogPageToLoad();
-            configureProductsPage.AddBundleProduct(productData, configureProductsPage);
-            configureProductsPage.clickOnGoTopricing();
-            cartPage.waitForCartPageToLoad();
-            cartPage.expandCaretIcon(productData);
-            cartPage.AssertConstraintRuleOptionProducts(productData);
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
+                // Switch to the new tab
+                originalWindowHandle = driver.CurrentWindowHandle;
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
+
+                configureProductsPage.waitForCatalogPageToLoad();
+                configureProductsPage.addBundleProduct(productData, configureProductsPage);
+                configureProductsPage.clickOnGoTopricing();
+                cartPage.waitForCartPageToLoad();
+                cartPage.expandCaretIcon(productData);
+                cartPage.AssertConstraintRuleOptionProducts(productData);
+            }
+            catch (Exception ex)
+            {
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+            }
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
+            }
+
         }
         [TearDown]
         public void tearDown()
@@ -997,7 +861,6 @@ namespace AutomationProject1.test
                     proposalDetailsPage.deleteCurrentProposal();
                 else
                 {
-                    Console.WriteLine(this.ProposalDetailsPageUrl);
                     driver.Navigate().GoToUrl(this.ProposalDetailsPageUrl);
                     proposalDetailsPage.deleteCurrentProposal();
                 }

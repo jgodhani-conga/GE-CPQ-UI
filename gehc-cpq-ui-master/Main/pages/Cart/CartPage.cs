@@ -13,7 +13,7 @@ namespace cpq_ui_master.Main.pages.Cart
     {
         private CartPageElements cartPageElements;
         private IList<IWebElement> ListofProductName;
-        private List<string> ProductName;
+        private List<string> productName;
         public CartPage(IWebDriver driver) : base(driver)
         {
             PageFactory.InitElements(driver, this);
@@ -22,20 +22,20 @@ namespace cpq_ui_master.Main.pages.Cart
 
         private void WaitForCartPageLoading()
         {
-            WaitForElementToLoad(cartPageElements.QuantityColumnField, SelectorType.XPath, maxWaitTime);
+            WaitForElementToLoad(cartPageElements.quantityColumnField, SelectorType.XPath, maxWaitTime);
         }
 
         public void ChangeQuantity(string quantity)
         {
             SwitchToIFrame();
             WaitForCartPageLoading();
-            QuantityChangeForEachProduct(quantity);
+            quantityChangeForEachProduct(quantity);
             SwitchToDefaultContent();
         }
 
-        private void QuantityChangeForEachProduct(string quantity)
+        private void quantityChangeForEachProduct(string quantity)
         {
-            WaitForElementToLoad(cartPageElements.QuantityColumnField, SelectorType.XPath, maxWaitTime);
+            WaitForElementToLoad(cartPageElements.quantityColumnField, SelectorType.XPath, maxWaitTime);
             foreach (var item in cartPageElements.Quantity)
             {
                 item.Clear();
@@ -44,47 +44,51 @@ namespace cpq_ui_master.Main.pages.Cart
 
         }
 
-        public void ClickRepriceBtn()
+        public void clickRepriceBtn()
         {
-            WaitForRepriceToLoad();
-            cartPageElements.RepriceBtn.Click();
+            waitForRepriceToLoad();
+            cartPageElements.repriceBtn.Click();
         }
 
-        private void WaitForRepriceToLoad()
+        private void waitForRepriceToLoad()
         {
-            WaitForElementToLoad(cartPageElements.Repricebutton, SelectorType.XPath, maxWaitTime);
+            WaitForElementToLoad(cartPageElements.repricebutton, SelectorType.XPath, maxWaitTime);
         }
 
         public void waitForCartPageToLoad()
         {
-            WaitForProgressBarToComplete();
-            WaitForElementToLoad(cartPageElements.ProductNamePath, SelectorType.CssSelector, maxWaitTime);
-            IList<IWebElement> ListOfProductNamePath = driver.FindElements(By.CssSelector(cartPageElements.ProductNamePath));
+            waitForProgressBarToComplete();
+            WaitForElementToLoad(cartPageElements.productNamePath, SelectorType.CssSelector, maxWaitTime);
+            IList<IWebElement> ListOfProductNamePath = driver.FindElements(By.CssSelector(cartPageElements.productNamePath));
             Console.WriteLine("ListOfProductNamePath", ListOfProductNamePath.Count);
-            this.ProductName = new List<string>();
+            this.productName = new List<string>();
             if (ListOfProductNamePath.Count > 0)
             {
                 foreach (var productNameElement in ListOfProductNamePath)
                 {
-                    this.ProductName.Add(productNameElement.Text);
+                    this.productName.Add(productNameElement.Text);
                 }
             }
         }
-        public void updateQuanityPerProduct(string productName, int quantity = 1)
+        public void updateQuanityPerProduct(JToken productData)
         {
-            int productIndex = this.ProductName.IndexOf(productName);
-            Console.WriteLine("this.ProductName", this.ProductName);
-            if (quantity > 1)
+            foreach (var item in productData)
             {
-                updateQuantity(quantity, productIndex);
+                int productIndex = this.productName.IndexOf(item["ProductName"].ToString());
+                Console.WriteLine(item["ProductName"].ToString() + productIndex);
+                if (int.Parse(item["Quantity"].ToString()) > 1)
+                {
+                    updateQuantity(int.Parse(item["Quantity"].ToString()), productIndex);
+                }
             }
+
         }
-      
+
         public void applyAdjustment(string productName, string valueToSelect = "", double AdjustmentAmount = 0)
         {
             SwitchToIFrame();
-            WaitForProgressBarToComplete();
-            int productIndex = this.ProductName.IndexOf(productName);
+            waitForProgressBarToComplete();
+            int productIndex = this.productName.IndexOf(productName);
             if (!string.IsNullOrEmpty(valueToSelect))
             {
                 selectValueInPicklist(productIndex, valueToSelect);
@@ -95,8 +99,8 @@ namespace cpq_ui_master.Main.pages.Cart
 
         public void applyAdjustmentForGE(string productName, string valueToSelect = "", double AdjustmentAmount = 0)
         {
-            WaitForProgressBarToComplete();
-            int productIndex = this.ProductName.IndexOf(productName);
+            waitForProgressBarToComplete();
+            int productIndex = this.productName.IndexOf(productName);
             if (!string.IsNullOrEmpty(valueToSelect))
             {
                 selectValueInPicklistForGE(productIndex, valueToSelect);
@@ -111,25 +115,25 @@ namespace cpq_ui_master.Main.pages.Cart
             WaitForElementToLoad("md-select-value.md-select-placeholder", SelectorType.CssSelector, maxWaitTime);
             var ClickOnDropDown = driver.FindElement(By.CssSelector("md-select-value.md-select-placeholder"));
             ClickOnDropDown.Click();
-            WaitForElementToLoad($"(//md-option[@value='{valueToSelect}'])[{this.ProductName.Count}]", SelectorType.XPath, maxWaitTime);
-            IWebElement AdjustmentAmountFieldPickListValue = driver.FindElement(By.XPath($"(//md-option[@value='{valueToSelect}'])[{this.ProductName.Count}]"));
+            WaitForElementToLoad($"(//md-option[@value='{valueToSelect}'])[{this.productName.Count}]", SelectorType.XPath, maxWaitTime);
+            IWebElement AdjustmentAmountFieldPickListValue = driver.FindElement(By.XPath($"(//md-option[@value='{valueToSelect}'])[{this.productName.Count}]"));
             AdjustmentAmountFieldPickListValue.Click();
         }
 
         public void updateQuantityandAdjustment(string productName, int quantity = 1, string valueToSelect = "", double AdjustmentAmount = 0)
         {
             SwitchToIFrame();
-            WaitForProgressBarToComplete();
-            WaitForElementToLoad(cartPageElements.ProductNamePath, SelectorType.CssSelector, maxWaitTime);
-            IList<IWebElement> ListOfProductNamePath = driver.FindElements(By.CssSelector(cartPageElements.ProductNamePath));
-            this.ProductName = new List<string>();
+            waitForProgressBarToComplete();
+            WaitForElementToLoad(cartPageElements.productNamePath, SelectorType.CssSelector, maxWaitTime);
+            IList<IWebElement> ListOfProductNamePath = driver.FindElements(By.CssSelector(cartPageElements.productNamePath));
+            this.productName = new List<string>();
             if (ListOfProductNamePath.Count > 0)
             {
                 foreach (var productNameElement in ListOfProductNamePath)
                 {
-                    this.ProductName.Add(productNameElement.Text);
+                    this.productName.Add(productNameElement.Text);
                 }
-                int productIndex = ProductName.IndexOf(productName);
+                int productIndex = this.productName.IndexOf(productName);
                 if (quantity > 1)
                 {
                     updateQuantity(quantity, productIndex);
@@ -143,7 +147,7 @@ namespace cpq_ui_master.Main.pages.Cart
             SwitchToDefaultContent();
         }
 
-        public void WaitForProgressBarToComplete()
+        public void waitForProgressBarToComplete()
         {
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
             wait.Until(d =>
@@ -163,30 +167,35 @@ namespace cpq_ui_master.Main.pages.Cart
 
         public void selectValueInPicklist(int productIndex, string valueToSelect)
         {
-            WaitForElementToLoad(cartPageElements.adjustmentTypeFieldPath.Replace("{productIndex}", (productIndex + 1).ToString()), SelectorType.XPath, maxWaitTime);
-            IWebElement AdjustmentTypeField = driver.FindElement(By.XPath(cartPageElements.adjustmentTypeFieldPath.Replace("{productIndex}", (productIndex + 1).ToString())));
-            AdjustmentTypeField.Click();
-            WaitForElementToLoad($"(//md-option[@value='{valueToSelect}'])[{this.ProductName.Count}]", SelectorType.XPath, maxWaitTime);
-            IWebElement AdjustmentAmountFieldPickListValue = driver.FindElement(By.XPath($"(//md-option[@value='{valueToSelect}'])[{this.ProductName.Count}]"));
-            AdjustmentAmountFieldPickListValue.Click();
+            WaitForElementToLoad(cartPageElements.adjustmentAmountForGE.Replace("{productIndex}", (productIndex + 1).ToString()), SelectorType.XPath, maxWaitTime);
+            IWebElement adjustmentTypeField = driver.FindElement(By.XPath(cartPageElements.adjustmentAmountForGE.Replace("{productIndex}", (productIndex + 1).ToString())));
+            adjustmentTypeField.Click();
+            WaitForElementToLoad(cartPageElements.adjustmentTypePicklist.Replace("{productLength}", (this.productName.Count).ToString()), SelectorType.XPath, maxWaitTime);
+            IWebElement clickOnPicklist = driver.FindElement(By.XPath(cartPageElements.adjustmentTypePicklist.Replace("{productLength}", (this.productName.Count).ToString())));
+            clickOnPicklist.Click();
+            WaitForElementToLoad($"(//md-option[@value='{valueToSelect}'])[{this.productName.Count}]", SelectorType.XPath, maxWaitTime);
+            IWebElement adjustmentAmountFieldPickListValue = driver.FindElement(By.XPath($"(//md-option[@value='{valueToSelect}'])[{this.productName.Count}]"));
+            adjustmentAmountFieldPickListValue.Click();
         }
 
         public void addAmountInAdjustmentAmount(double amount, int productIndex)
         {
-            WaitForElementToLoad(cartPageElements.adjustmentAmountFieldPath.Replace("{productIndex}", (productIndex + 1).ToString()), SelectorType.XPath, maxWaitTime);
-            IWebElement AdjustmentAmountField = driver.FindElement(By.XPath(cartPageElements.adjustmentAmountFieldPath.Replace("{productIndex}", (productIndex + 1).ToString())));
+            WaitForElementToLoad(cartPageElements.adjustmentAmountFieldPath.Replace("{productIndex}", (this.productName.Count).ToString()), SelectorType.XPath, maxWaitTime);
+            IWebElement AdjustmentAmountField = driver.FindElement(By.XPath(cartPageElements.adjustmentAmountFieldPath.Replace("{productIndex}", (this.productName.Count).ToString())));
             AdjustmentAmountField.Clear();
             AdjustmentAmountField.SendKeys(amount.ToString());
+            WaitForElementToLoad($"(//button[text()='Apply'])[{this.productName.Count}]", SelectorType.XPath, maxWaitTime);
+            IWebElement clickOnApplyBtn = driver.FindElement(By.XPath($"(//button[text()='Apply'])[{this.productName.Count}]"));
+            clickOnApplyBtn.Click();
+
         }
 
-        public double quanityAfterReprice(string ProductNames)
+
+        public double quanityAfterReprice(string productNames)
         {
-            /*SwitchToIFrame();*/
-            int productIndex = ProductName.IndexOf(ProductNames);
+            int productIndex = this.productName.IndexOf(productNames);
             IWebElement quantityField = driver.FindElement(By.XPath(cartPageElements.quantityPath.Replace("{productIndex}", (productIndex + 1).ToString())));
             string inputValue = quantityField.GetAttribute("value").ToString();
-            /*   SwitchToDefaultContent();*/
-            /*      Console.Write("method"+int.Parse(inputValue));*/
             return double.Parse(inputValue);
 
         }
@@ -205,16 +214,7 @@ namespace cpq_ui_master.Main.pages.Cart
             IWebElement addProductsButtons = driver.FindElement(By.XPath("//button[@buttonid='id_task_left_addmoreproducts']"));
             addProductsButtons.Click();
         }
-
-        public void ClickOnCheckBoxA(string ProductName)
-        {
-            int ProductIndex = this.ProductName.IndexOf(ProductName);
-
-            WaitForElementToLoad(cartPageElements.ClickOnCheckBox.Replace("{ProductIndex}", (ProductIndex + 1).ToString()), SelectorType.XPath, maxWaitTime);
-            IWebElement ClickCheckBox = driver.FindElement(By.XPath(cartPageElements.ClickOnCheckBox.Replace("{ProductIndex}", (ProductIndex + 1).ToString())));
-            ClickCheckBox.Click();
-        }
-        public void ClickOnFinalize()
+        public void clickOnFinalize()
         {
             WaitUntillElementToBeClickbleForXpath("//button[@ng-click='displayAction.doAction(displayAction.primaryAction)']", maxWaitTime);
             WaitForElementToLoad("//button[@ng-click='displayAction.doAction(displayAction.primaryAction)']", SelectorType.XPath, maxWaitTime);
@@ -257,15 +257,15 @@ namespace cpq_ui_master.Main.pages.Cart
                 return null;
             }
         }
-        public void ClickOnMassUpdate()
+        public void clickOnMassUpdate()
         {
             /*          SwitchToIFrame();*/
-            WaitForElementToLoad(cartPageElements.ClickOnMassUpdate, SelectorType.XPath, maxWaitTime);
-            cartPageElements.ClickOnMassUpdateBtn.Click();
+            WaitForElementToLoad(cartPageElements.clickOnMassUpdate, SelectorType.XPath, maxWaitTime);
+            cartPageElements.clickOnMassUpdateBtn.Click();
             /*     SwitchToDefaultContent();*/
         }
 
-        public void UpdateQuantityInMassUpdate()
+        public void updateQuantityInMassUpdate()
         {
             WaitForElementToLoad("//input[contains(@class, 'aptQuantity') and @type='mass update']", SelectorType.XPath, maxWaitTime);
             IWebElement updateMassQuantity = driver.FindElement(By.XPath("//input[contains(@class, 'aptQuantity') and @type='mass update']"));
@@ -273,17 +273,17 @@ namespace cpq_ui_master.Main.pages.Cart
             updateMassQuantity.SendKeys("3");
 
         }
-        public void ClickOnApplyButton()
+        public void clickOnApplyButton()
         {
-            WaitForElementToLoad(cartPageElements.ClickOnApply, SelectorType.XPath, maxWaitTime);
-            cartPageElements.ClickOnApplyBtn.Click();
+            WaitForElementToLoad(cartPageElements.clickOnApply, SelectorType.XPath, maxWaitTime);
+            cartPageElements.clickOnApplyBtn.Click();
         }
         public void applyAdjustmentPerProduct(JToken productData)
         {
             foreach (var item in productData)
             {
-                WaitForProgressBarToComplete();
-                int productIndex = this.ProductName.IndexOf(item["ProductName"].ToString());
+                waitForProgressBarToComplete();
+                int productIndex = this.productName.IndexOf(item["ProductName"].ToString());
                 if (!string.IsNullOrEmpty(item["AdjustMentType"].ToString()))
                 {
                     selectValueInPicklist(productIndex, item["AdjustMentType"].ToString());
@@ -298,13 +298,13 @@ namespace cpq_ui_master.Main.pages.Cart
                 Assert.That(double.Parse(item["Quantity"].ToString()).Equals(quanityAfterReprice(item["ProductName"].ToString())), "Quantity1 is not matching");
             }
         }
-        public void ClickOnCheckBox(JToken cloneProductName)
+        public void clickOnCheckBox(JToken cloneProductName)
         {
             foreach (var item in cloneProductName)
             {
-                int ProductIndex = this.ProductName.IndexOf(item.ToString());
-                WaitForElementToLoad(cartPageElements.ClickOnCheckBox.Replace("{ProductIndex}", (ProductIndex + 1).ToString()), SelectorType.XPath, maxWaitTime);
-                IWebElement ClickCheckBox = driver.FindElement(By.XPath(cartPageElements.ClickOnCheckBox.Replace("{ProductIndex}", (ProductIndex + 1).ToString())));
+                int ProductIndex = this.productName.IndexOf(item.ToString());
+                WaitForElementToLoad(cartPageElements.clickOnCheckBox.Replace("{ProductIndex}", (ProductIndex + 1).ToString()), SelectorType.XPath, maxWaitTime);
+                IWebElement ClickCheckBox = driver.FindElement(By.XPath(cartPageElements.clickOnCheckBox.Replace("{ProductIndex}", (ProductIndex + 1).ToString())));
                 ClickCheckBox.Click();
 
             }
@@ -314,7 +314,7 @@ namespace cpq_ui_master.Main.pages.Cart
             WaitForElementToLoad("i.fa.cart-actions.fa-clone", SelectorType.CssSelector, maxWaitTime);
             IWebElement cloneButton = driver.FindElement(By.CssSelector("i.fa.cart-actions.fa-clone"));
             cloneButton.Click();
-            WaitForProgressBarToComplete();
+            waitForProgressBarToComplete();
             waitForUpdatingCart();
 
         }
@@ -329,7 +329,7 @@ namespace cpq_ui_master.Main.pages.Cart
         public bool itemClonedOrNot(string itemName)
         {
             WaitForElementToLoad(cartPageElements.productPath.Replace("{productName}", (itemName).ToString()), SelectorType.XPath, maxWaitTime);
-            IList<IWebElement> productNameList = driver.FindElements(By.XPath(cartPageElements.productPath.Replace("{productName}", (ProductName).ToString())));
+            IList<IWebElement> productNameList = driver.FindElements(By.XPath(cartPageElements.productPath.Replace("{productName}", (this.productName).ToString())));
             return productNameList.Count != 1;
         }
         public string checkProductExitInCart(string productName)

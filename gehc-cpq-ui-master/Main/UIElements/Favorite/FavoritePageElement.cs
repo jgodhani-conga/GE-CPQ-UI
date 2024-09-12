@@ -15,16 +15,16 @@ namespace cpq_ui_master.Main.UIElements.Favorite
             PageFactory.InitElements(driver, this);
         }
 
-        public string ClickOnFavorite = "//i[@class='fa cart-actions fa-star']";
+        public string clickOnFavorite = "//i[@class='fa cart-actions fa-star']";
 
         [FindsBy(How = How.XPath, Using = "//i[@class='fa cart-actions fa-star']")]
-        public IWebElement ClickOnFavoriteBtn { get; set; }
+        public IWebElement clickOnFavoriteBtn { get; set; }
 
 
-        public string ClickOnSave = "//button[@type='button' and contains(@class, 'ands-btn') and contains(@class, 'ands-primary') and @ng-click='saveAsFavorite.validateAndSave()']";
+        public string clickOnSave = "//button[@type='button' and contains(@class, 'ands-btn') and contains(@class, 'ands-primary') and @ng-click='saveAsFavorite.validateAndSave()']";
 
         [FindsBy(How = How.XPath, Using = "//button[@type='button' and contains(@class, 'ands-btn') and contains(@class, 'ands-primary') and @ng-click='saveAsFavorite.validateAndSave()']")]
-        public IWebElement ClickOnSaveBtn { get; set; }
+        public IWebElement clickOnSaveBtn { get; set; }
 
 
         [FindsBy(How = How.XPath, Using = "//input[@type='text' and @ng-model='dynamicField.getSetModel' and @ng-blur='dynamicField.onFocusOut()' and @ng-disabled='dynamicField.IsDisabled || !dynamicField.IsEditable']")]

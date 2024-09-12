@@ -24,22 +24,22 @@ namespace cpq_ui_master.Main.pages.Favorite
             favElement = new FavoritePageElement(driver);
         }
 
-        public void ClickOnFavorite()
+        public void clickOnFavorite()
         {
-            WaitForElementToLoad(favElement.ClickOnFavorite, SelectorType.XPath, maxWaitTime);
-            favElement.ClickOnFavoriteBtn.Click();
+            WaitForElementToLoad(favElement.clickOnFavorite, SelectorType.XPath, maxWaitTime);
+            favElement.clickOnFavoriteBtn.Click();
         }
 
-        public FavoritePage EnterFavoriteName(String favoriteName)
+        public FavoritePage enterFavoriteName(String favoriteName)
         {
             favElement.inputTxtFavName.SendKeys(favoriteName);
             return this;
         }
 
-        public void ClickOnSaveBtn()
+        public void clickOnSaveBtn()
         {
-            WaitForElementToLoad(favElement.ClickOnSave, SelectorType.XPath, maxWaitTime);
-            favElement.ClickOnSaveBtn.Click();
+            WaitForElementToLoad(favElement.clickOnSave, SelectorType.XPath, maxWaitTime);
+            favElement.clickOnSaveBtn.Click();
         }
 
         public void addProductFromFavorite(string favoriteName)

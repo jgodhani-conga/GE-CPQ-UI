@@ -16,27 +16,27 @@ namespace cpq_ui_master.Main.UIElements.Catalog
             PageFactory.InitElements(driver, this);
         }
 
-        public string SearchProduct = "//input[@placeholder='Find Products']";
+        public string searchProduct = "//input[@placeholder='Find Products']";
 
         [FindsBy(How = How.XPath, Using = "//input[@placeholder='Find Products']")]
         public IWebElement findProductsSearch { get; set; }
 
-        public string AddToCartButton = "span.ng-binding.ng-scope[ng-show='(!catalogProduct.isSelectedInCatalog(catalogProduct.product.productSO.Id) || catalogProduct.pageSettings.DisableAddAnother)']";
+        public string addToCartButton = "span.ng-binding.ng-scope[ng-show='(!catalogProduct.isSelectedInCatalog(catalogProduct.product.productSO.Id) || catalogProduct.pageSettings.DisableAddAnother)']";
 
         [FindsBy(How = How.CssSelector, Using = "span.ng-binding.ng-scope[ng-show='(!catalogProduct.isSelectedInCatalog(catalogProduct.product.productSO.Id) || catalogProduct.pageSettings.DisableAddAnother)']")]
-        public IWebElement AddToCartButtons { get; set; }
+        public IWebElement addToCartButtons { get; set; }
 
-        public string ConfigureButton = "//button[contains(text(), 'Configure...')]";
+        public string configureButton = "//button[contains(text(), 'Configure...')]";
 
          [FindsBy(How = How.CssSelector, Using = "md-icon[aria-label='shopping_cart']")]
-        public IWebElement ShoppingCartIcon { get; set; }
+        public IWebElement shoppingCartIcon { get; set; }
 
-        public string NumberOfItemInCart = "//span[@class='mini-cart__display__total line-item-count ng-binding ng-scope']";
+        public string numberOfItemInCart = "//span[@class='mini-cart__display__total line-item-count ng-binding ng-scope']";
 
-        public string ViewCartbutton = "button.mini-cart__actions__view-cart";
+        public string viewCartbutton = "button.mini-cart__actions__view-cart";
 
         [FindsBy(How = How.CssSelector, Using = "button.mini-cart__actions__view-cart")]
-        public IWebElement ViewCartBtn { get; set; }
+        public IWebElement viewCartBtn { get; set; }
 
         public string shoppingCartProductNamePath = "//h3[@class='mini-cart__items__item__title']/span[@class='ng-binding']";
 
@@ -51,15 +51,15 @@ namespace cpq_ui_master.Main.UIElements.Catalog
 
         public string validateMessagePath = "div.sidebar--configure-recalculate span.ng-binding";
 
-        public string AbandonCartButton = "//md-icon[text()='exit_to_app']";
+        public string abandonCartButton = "//md-icon[text()='exit_to_app']";
 
         [FindsBy(How = How.XPath, Using = "//md-icon[text()='exit_to_app']")]
-        public IWebElement AbandonCartBtn { get; set; }
+        public IWebElement abandonCartBtn { get; set; }
 
-        public string ClickOk = "//button[@ng-click='customAction.abandonCart()']\r\n";
+        public string clickOk = "//button[@ng-click='customAction.abandonCart()']\r\n";
 
         [FindsBy(How = How.XPath, Using = "//button[@ng-click='customAction.abandonCart()']\r\n")]
-        public IWebElement ClickOkBtn { get; set; }
+        public IWebElement clickOkBtn { get; set; }
 
      
 

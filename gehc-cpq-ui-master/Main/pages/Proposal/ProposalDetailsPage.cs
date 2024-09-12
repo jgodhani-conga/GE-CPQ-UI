@@ -35,7 +35,7 @@ namespace gehc_cpq_ui_master.Main.pages.Proposal
         }
         public ProposalDetailsPage waitForPopupToLoad()
         {
-            WaitForElementToLoad(elements.popupHeader, SelectorType.XPath, minWaitTime);
+            WaitForElementToLoad(elements.popupHeader, SelectorType.XPath, maxWaitTime);
             return this;
         }
         public ProposalDetailsPage deleteCurrentProposal()
