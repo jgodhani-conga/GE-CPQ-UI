@@ -685,7 +685,7 @@ namespace AutomationProject1.test
 
         }
 
-        }
+        
 
         [Test(Author = "Jay Godhani", Description = "TC_1007 : Mass Update in cart")]
         public void MassUpdate()
@@ -830,7 +830,7 @@ namespace AutomationProject1.test
 
         }
 
-        }
+        
 
         [Test(Author = "Alay Patel", Description = "TC_1002 : Copy Product From Cart")]
         public void cloneProductFromCart()
