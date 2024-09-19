@@ -202,21 +202,21 @@ namespace cpq_ui_master.Main.pages.Cart
 
         public void waitForUpdatingCart()
         {
-            WaitUntilElementIsInvisibleXpath("//div[@id='progress-bar-container']//p[@id='progress-bar-left' and contains(text(), 'Updating Line Items')]");
+            WaitUntilElementIsInvisible("//div[@id='progress-bar-container']//p[@id='progress-bar-left' and contains(text(), 'Updating Line Items')]", SelectorType.XPath, maxWaitTime);
         }
 
 
         public void clickOnAddMoreProducts()
         {
 
-            WaitUntillElementToBeClickbleForXpath("//button[@buttonid='id_task_left_addmoreproducts']", maxWaitTime);
+            WaitUntillElementToBeClickble("//button[@buttonid='id_task_left_addmoreproducts']", SelectorType.XPath, maxWaitTime);
             WaitForElementToLoad("//button[@buttonid='id_task_left_addmoreproducts']", SelectorType.XPath, maxWaitTime);
             IWebElement addProductsButtons = driver.FindElement(By.XPath("//button[@buttonid='id_task_left_addmoreproducts']"));
             addProductsButtons.Click();
         }
         public void clickOnFinalize()
         {
-            WaitUntillElementToBeClickbleForXpath("//button[@ng-click='displayAction.doAction(displayAction.primaryAction)']", maxWaitTime);
+            WaitUntillElementToBeClickble("//button[@ng-click='displayAction.doAction(displayAction.primaryAction)']", SelectorType.XPath, maxWaitTime);
             WaitForElementToLoad("//button[@ng-click='displayAction.doAction(displayAction.primaryAction)']", SelectorType.XPath, maxWaitTime);
             IWebElement clickFinalizeBtn = driver.FindElement(By.XPath("//button[@ng-click='displayAction.doAction(displayAction.primaryAction)']"));
             clickFinalizeBtn.Click();
@@ -259,10 +259,8 @@ namespace cpq_ui_master.Main.pages.Cart
         }
         public void clickOnMassUpdate()
         {
-            /*          SwitchToIFrame();*/
             WaitForElementToLoad(cartPageElements.clickOnMassUpdate, SelectorType.XPath, maxWaitTime);
             cartPageElements.clickOnMassUpdateBtn.Click();
-            /*     SwitchToDefaultContent();*/
         }
 
         public void updateQuantityInMassUpdate()

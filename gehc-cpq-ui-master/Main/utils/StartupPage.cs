@@ -39,6 +39,12 @@ namespace AutomationProject1.Main.utils
                 .Select(s => s[random.Next(s.Length)]).ToArray());
             return randomString;
         }
+
+        public string currentDateAndTime()
+        {
+
+            return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        }
         
         protected void WaitForElementToLoad(IWebElement element, int waitTime)
         {
@@ -59,62 +65,95 @@ namespace AutomationProject1.Main.utils
         {
             driver.SwitchTo().DefaultContent();
         }
-        public void WaitUntilElementIsInvisible(string element)
+
+         public void WaitUntilElementIsInvisible(string Selector, SelectorType selectorType, int waitTime)
         {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(maxWaitTime));
-            By elementXPath = By.CssSelector(element);
-            wait.Until(ExpectedConditions.InvisibilityOfElementLocated(elementXPath));
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(waitTime));
+            By? by = null;
+            switch (selectorType)
+            {
+                case SelectorType.CssSelector:
+                    by = By.CssSelector(Selector);
+                    break;
+                case SelectorType.XPath:
+                    by = By.XPath(Selector);
+                    break;
+                case SelectorType.Id:
+                    by = By.Id(Selector);
+                    break;
+                case SelectorType.Name:
+                    by = By.Name(Selector);
+                    break;
+                case SelectorType.ClassName:
+                    by = By.ClassName(Selector);
+                    break;
+                case SelectorType.TagName:
+                    by = By.TagName(Selector);
+                    break;
+            }
+            wait.Until(ExpectedConditions.InvisibilityOfElementLocated(by));
         }
 
-        public void WaitUntilElementIsInvisibleXpath(string element)
+        public void WaitUntillElementToBeClickble(string Selector, SelectorType selectorType, int waitTime)
         {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(maxWaitTime));
-            By elementXPath = By.XPath(element);
-            wait.Until(ExpectedConditions.InvisibilityOfElementLocated(elementXPath));
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(waitTime));
+            By? by = null;
+            switch (selectorType)
+            {
+                case SelectorType.CssSelector:
+                    by = By.CssSelector(Selector);
+                    break;
+                case SelectorType.XPath:
+                    by = By.XPath(Selector);
+                    break;
+                case SelectorType.Id:
+                    by = By.Id(Selector);
+                    break;
+                case SelectorType.Name:
+                    by = By.Name(Selector);
+                    break;
+                case SelectorType.ClassName:
+                    by = By.ClassName(Selector);
+                    break;
+                case SelectorType.TagName:
+                    by = By.TagName(Selector);
+                    break;
+            }
+            wait.Until(ExpectedConditions.ElementToBeClickable(by));
         }
-        public void WaitUntillElementToBeClickble(string selector, int timeInSeconds)
-        {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeInSeconds));
-            wait.Until(ExpectedConditions.ElementToBeClickable(By.CssSelector(selector)));
 
-        }
-        public void WaitUntillElementToBeClickbleForXpath(string selector, int timeInSeconds)
+        public void fluentWaitUntilElementIsVisible(string Selector, SelectorType selectorType, int waitTime)
         {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeInSeconds));
-            wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath(selector)));
-
-        }
-        
-        public void FluentWaitUntilElementVisibleForCss(string selector, int timeInSeconds)
-        {
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeInSeconds))
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(waitTime))
             {
                 PollingInterval = TimeSpan.FromMilliseconds(500)
             };
-            wait.IgnoreExceptionTypes(typeof(NoSuchElementException));
-            wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector(selector)));
-        }
-        public void FluentWaitUntilElementVisibleForXpath(string selector, int timeInSeconds)
-        {
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeInSeconds))
+            By? by = null;
+            switch (selectorType)
             {
-                PollingInterval = TimeSpan.FromMilliseconds(500)
-            };
+                case SelectorType.CssSelector:
+                    by = By.CssSelector(Selector);
+                    break;
+                case SelectorType.XPath:
+                    by = By.XPath(Selector);
+                    break;
+                case SelectorType.Id:
+                    by = By.Id(Selector);
+                    break;
+                case SelectorType.Name:
+                    by = By.Name(Selector);
+                    break;
+                case SelectorType.ClassName:
+                    by = By.ClassName(Selector);
+                    break;
+                case SelectorType.TagName:
+                    by = By.TagName(Selector);
+                    break;
+            }
             wait.IgnoreExceptionTypes(typeof(NoSuchElementException));
-            wait.Until(ExpectedConditions.ElementIsVisible(By.XPath(selector)));
+            wait.Until(ExpectedConditions.ElementIsVisible(by));
         }
 
-        public void WaitForNetworkResponses(IWebDriver driver, int timeoutInSeconds)
-        {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
-
-            wait.Until(drv =>
-            {
-                IJavaScriptExecutor js = (IJavaScriptExecutor)drv;
-                var networkStatus = js.ExecuteScript("return window.performance.getEntriesByType('resource').length == 0;");
-                return (bool)networkStatus;
-            });
-        }
         protected void WaitForElementToLoad(string Selector, SelectorType selectorType,int waitTime)
         {
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(waitTime));

@@ -21,9 +21,9 @@ namespace cpq_ui_master.Main.UIElements.Catalog
         [FindsBy(How = How.XPath, Using = "//input[@placeholder='Find Products']")]
         public IWebElement findProductsSearch { get; set; }
 
-        public string addToCartButton = "span.ng-binding.ng-scope[ng-show='(!catalogProduct.isSelectedInCatalog(catalogProduct.product.productSO.Id) || catalogProduct.pageSettings.DisableAddAnother)']";
+        public string addToCartButton = "div.listing-actions .ands-primary";
 
-        [FindsBy(How = How.CssSelector, Using = "span.ng-binding.ng-scope[ng-show='(!catalogProduct.isSelectedInCatalog(catalogProduct.product.productSO.Id) || catalogProduct.pageSettings.DisableAddAnother)']")]
+        [FindsBy(How = How.CssSelector, Using = "div.listing-actions .ands-primary")]
         public IWebElement addToCartButtons { get; set; }
 
         public string configureButton = "//button[contains(text(), 'Configure...')]";

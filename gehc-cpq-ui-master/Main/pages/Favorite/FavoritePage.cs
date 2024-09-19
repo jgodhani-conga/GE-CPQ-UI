@@ -52,12 +52,12 @@ namespace cpq_ui_master.Main.pages.Favorite
             IWebElement searchFavorite = driver.FindElement(By.CssSelector("input.catalog-search-input"));
             searchFavorite.SendKeys(favoriteName + Keys.Enter);
 
-            WaitUntilElementIsInvisibleXpath("//span[text()='Please wait while products are loading']");
+            WaitUntilElementIsInvisible("//span[text()='Please wait while products are loading']", SelectorType.XPath, maxWaitTime);
             WaitForElementToLoad($"//a[contains(text(), '{favoriteName}')]", SelectorType.XPath, maxWaitTime);
 
             WaitForElementToLoad("//span[contains(text(), 'Add to Cart')]", SelectorType.XPath, maxWaitTime);
 
-            FluentWaitUntilElementVisibleForXpath("//span[contains(text(), 'Add to Cart')]", maxWaitTime);
+            WaitUntillElementToBeClickble("//span[contains(text(), 'Add to Cart')]", SelectorType.XPath, maxWaitTime);
             driver.FindElement(By.XPath("//span[contains(text(), 'Add to Cart')]")).Click();
 
         }
