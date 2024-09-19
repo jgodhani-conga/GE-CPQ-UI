@@ -27,5 +27,7 @@ namespace gehc_cpq_ui_master.Main.UIElements.Proposal
         public string txtXPathBtn = "//span[text()='{fieldName}']/ancestor::dt/following-sibling::dd//img";
         public string ProposalName = "//p[@title='Proposal Name']";
 
+        public string ConfigurationOne = "//span[@title='Configurations']/following-sibling::span";
+
     }
 }

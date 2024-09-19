@@ -64,7 +64,7 @@ namespace gehc_cpq_ui_master.Main.pages.Proposal
         {
             WaitForElementToLoad("//*[@id='detailTab__item']", SelectorType.XPath, maxWaitTime);
             driver.FindElement(By.XPath("//*[@id='detailTab__item']")).Click();
-            WaitUntillElementToBeClickbleForXpath(elements.txtXPathBtn.Replace("{fieldName}", ConfigureProductRLSField), maxWaitTime);
+            WaitUntillElementToBeClickble(elements.txtXPathBtn.Replace("{fieldName}", ConfigureProductRLSField),SelectorType.XPath, maxWaitTime);
             IWebElement element = driver.FindElement(By.XPath(elements.txtXPathBtn.Replace("{fieldName}", ConfigureProductRLSField)));
             ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", element);
         }
@@ -83,8 +83,8 @@ namespace gehc_cpq_ui_master.Main.pages.Proposal
         }
         public void waitForProposalDetailPageToLoad()
         {
-            FluentWaitUntilElementVisibleForXpath("//span[@title='Configurations']", maxWaitTime);
-            WaitUntillElementToBeClickbleForXpath("//span[@title='Configurations']", maxWaitTime);
+            fluentWaitUntilElementIsVisible("//span[@title='Configurations']", SelectorType.XPath,maxWaitTime);
+            WaitUntillElementToBeClickble("//span[@title='Configurations']", SelectorType.XPath, maxWaitTime);
 
 
         }
@@ -124,6 +124,44 @@ namespace gehc_cpq_ui_master.Main.pages.Proposal
                 }
             }
            
+        }
+
+        public void waitUntilClickConfigure()
+        {
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30)); // Adjust the timeout as needed
+                                                                                      // FluentWaitUntilElementVisibleForXpath(elements.ConfigurationOne, maxWaitTime);
+
+            var totalValueText = "";
+            try
+            {
+                wait.Until(driver =>
+                {
+                    try
+                    {
+                        // Find the element and get its text
+                        var miniCartTotal = driver.FindElement(By.XPath(elements.ConfigurationOne));
+                        totalValueText = miniCartTotal.Text.Trim();
+                        int number = int.Parse(totalValueText.Trim('(', ')'));
+                        return number > 0;
+                    }
+                    catch (NoSuchElementException)
+                    {
+                        Console.WriteLine("Element not found. Waiting for it to appear...");
+                        return false; // Continue waiting
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Failed to parse the number from text: " + totalValueText);
+                        return false; // Continue waiting
+                    }
+                });
+
+                clickOnConfigureIcon();
+            }
+            catch (WebDriverTimeoutException e)
+            {
+                Console.WriteLine("Timed out waiting for the condition. Error: " + e.Message);
+            }
         }
     }
 }

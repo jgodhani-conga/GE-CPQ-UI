@@ -69,40 +69,79 @@ namespace cpq_ui_master.Main.Config
         {
             extentTest.Skip(info);
         }
+        /*   public static void EndTest(ExtentTest test)
+           {
+
+               var status = TestContext.CurrentContext.Result.Outcome.Status;
+               Console.WriteLine(status);
+               var stacktrace = string.IsNullOrEmpty(TestContext.CurrentContext.Result.StackTrace)
+                   ? ""
+                   : string.Format("{0}", TestContext.CurrentContext.Result.StackTrace);
+               Status logstatus;
+
+               switch (status)
+               {
+                   case TestStatus.Failed:
+                       logstatus = Status.Fail;
+                       LogFail(test, "Test failed with message: " + TestContext.CurrentContext.Result.Message);
+                       test.Log(Status.Fail, "Stack Trace: " + stacktrace);
+                       break;
+                   case TestStatus.Inconclusive:
+                       logstatus = Status.Warning;
+                       LogWarning(test, "Test skipped:");
+                       test.Log(Status.Warning, "Test inconclusive");
+                       break;
+                   case TestStatus.Skipped:
+                       logstatus = Status.Skip;
+                       LogSkip(test, "Test skipped:");
+                       test.Log(Status.Skip, "Test skipped");
+                       break;
+                   default:
+                       logstatus = Status.Pass;
+                       LogPass(test, "Test Passed");
+                       break;
+               }
+               LogInfo(test, "Test Ended");
+
+           }*/
         public static void EndTest(ExtentTest test)
         {
-
+            // Retrieve the test result status
             var status = TestContext.CurrentContext.Result.Outcome.Status;
-            Console.WriteLine(status);
-            var stacktrace = string.IsNullOrEmpty(TestContext.CurrentContext.Result.StackTrace)
-                ? ""
-                : string.Format("{0}", TestContext.CurrentContext.Result.StackTrace);
-            Status logstatus;
+            var message = TestContext.CurrentContext.Result.Message;
+            var stacktrace = TestContext.CurrentContext.Result.StackTrace;
 
+            // Determine the log status based on the test result
+            Status logstatus;
             switch (status)
             {
                 case TestStatus.Failed:
                     logstatus = Status.Fail;
-                    LogFail(test, "Test failed with message: " + TestContext.CurrentContext.Result.Message);
-                    test.Log(Status.Fail, "Stack Trace: " + stacktrace);
+                    test.Log(Status.Fail, "Test failed with message: " + message);
+                    if (!string.IsNullOrEmpty(stacktrace))
+                    {
+                        test.Log(Status.Fail, "Stack Trace: " + stacktrace);
+                    }
                     break;
+
                 case TestStatus.Inconclusive:
                     logstatus = Status.Warning;
-                    LogWarning(test, "Test skipped:");
-                    test.Log(Status.Warning, "Test inconclusive");
+                    test.Log(Status.Warning, "Test inconclusive: " + message);
                     break;
+
                 case TestStatus.Skipped:
                     logstatus = Status.Skip;
-                    LogSkip(test, "Test skipped:");
-                    test.Log(Status.Skip, "Test skipped");
+                    test.Log(Status.Skip, "Test skipped: " + message);
                     break;
+
                 default:
                     logstatus = Status.Pass;
-                    LogPass(test, "Test Passed:");
+                    test.Log(Status.Pass, "Test Passed");
                     break;
             }
-            LogInfo(test, "Test ended");
 
+            // Log the end of the test
+            test.Log(logstatus, "Test Ended");
         }
     }
 }

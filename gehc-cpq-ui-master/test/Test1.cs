@@ -76,10 +76,13 @@ namespace AutomationProject1.test
         {
             test = extent.CreateTest("Create New Proposal");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Create New Proposal");
+            try
+            {
                 jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
                 var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to Create a New Proposal");
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -90,11 +93,23 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal Created Successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
                 Assert.That(newProposalName.Equals(proposalDetailsPage.getProposalName()), "Proposal Name are not matching");
                 if (!driver.Url.Equals(this.ProposalDetailsPageUrl))
                     driver.Navigate().GoToUrl(this.ProposalDetailsPageUrl);
+                ReportsGenerationClass.LogInfo(test, "Test Completed.");
+            }
+            catch (Exception ex)
+            {
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
+            }
+            finally
+            {
+                ReportsGenerationClass.LogInfo(test, "Test completed.");
+            }
         }
 
         [Test(Author = "Alay Patel", Description = "TC_1002 : Add Single Standalone Product")]
@@ -103,41 +118,55 @@ namespace AutomationProject1.test
             test = extent.CreateTest("Add Product To cart");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Add Product To cart");
 
-            jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
-            var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
-            string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
-            var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
-            var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
+            try
+            {
+                jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
+                var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
+                string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
+                var testData1 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData1"];
+                var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to Create a New Proposal");
+                proposalListPage.clickOnNewButton();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
+                createNewProposal
+                    .waitTillSelectRecordTypePopupisLoaded()
+                    .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
+                    .clickOnNextButton()
+                    .waitTillCreateProposalPopupisLoaded()
+                    .enterProposalName(newProposalName)
+                    .selectOpportunity(testData["Opportunity"].ToString())
+                    .selectAccount(testData["Account"].ToString())
+                    .selectPriceList(testData["PriceList"].ToString())
+                    .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal Created Successfully");
+                proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
+                this.ProposalId = proposalDetailsPage.getProposalObjectId();
+                this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
+                proposalDetailsPage.clickOnConfigureProductsForRLS();
 
-            proposalListPage.clickOnNewButton();
-            string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
-            createNewProposal
-                .waitTillSelectRecordTypePopupisLoaded()
-                .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
-                .clickOnNextButton()
-                .waitTillCreateProposalPopupisLoaded()
-                .enterProposalName(newProposalName)
-                .selectOpportunity(testData["Opportunity"].ToString())
-                .selectAccount(testData["Account"].ToString())
-                .selectPriceList(testData["PriceList"].ToString())
-                .clickOnSaveButton();
-            proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
-            this.ProposalId = proposalDetailsPage.getProposalObjectId();
-            this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
-            proposalDetailsPage.clickOnConfigureProductsForRLS();
+                originalWindowHandle = driver.CurrentWindowHandle;
+                proposalDetailsPage.switchToNewWindow(originalWindowHandle);
 
-            originalWindowHandle = driver.CurrentWindowHandle;
-            proposalDetailsPage.switchToNewWindow(originalWindowHandle);
-
-            configureProductsPage.waitForCatalogPageToLoad();
-            configureProductsPage.addProductUsingJsonFile();
-            configureProductsPage.clickOnShoppingCart();
-            Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
-            configureProductsPage.clickOnViewCartButton();
-
-            driver.Close();
-            driver.SwitchTo().Window(originalWindowHandle);
+                configureProductsPage.waitForCatalogPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Adding Products To Cart");
+                configureProductsPage.addProductUsingJsonFile();
+                ReportsGenerationClass.LogInfo(test, "Added Products to Cart Successfully");
+                configureProductsPage.clickOnShoppingCart();
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                configureProductsPage.clickOnViewCartButton();
+            }
+            catch (Exception ex)
+            {
+                ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                Assert.Fail($"Test failed with exception: {ex.Message}");
+            }
+            finally
+            {
+                driver.Close();
+                driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Test completed.");
         }
+    }
 
         [Test(Author = "Alay Patel", Description = "TC_1003 : Add Bundle Product")]
         public void AddBudleProductToCart()
@@ -152,9 +181,9 @@ namespace AutomationProject1.test
                 string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
 
                 var productData = JObject.Parse(File.ReadAllText(TestDatafilePath))["Products"];
-
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to Create a New Proposal");
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -165,6 +194,7 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal Created Successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalId = proposalDetailsPage.getProposalObjectId();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
@@ -175,18 +205,20 @@ namespace AutomationProject1.test
                 proposalDetailsPage.switchToNewWindow(originalWindowHandle);
                 configureProductsPage.waitForCatalogPageToLoad();
                 configureProductsPage.addBundleProduct(productData, configureProductsPage);
-
+                ReportsGenerationClass.LogInfo(test, "Added Bundle Products To Cart Successfully");
                 configureProductsPage.clickOnGoTopricing();
                 cartPage.waitForCartPageToLoad();
             }
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Test completed.");
             }
            
         }
@@ -210,9 +242,9 @@ namespace AutomationProject1.test
                 var testData2 = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["TestData2"];
 
                 var updateQuantityAndApplyAdjustmentTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["updateQuantityAndApplyAdjustmentTestData"];
-
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to Create a New Proposal");
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -223,6 +255,7 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal Created Successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalId = proposalDetailsPage.getProposalObjectId();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
@@ -233,10 +266,14 @@ namespace AutomationProject1.test
                 proposalDetailsPage.switchToNewWindow(originalWindowHandle);
 
                 configureProductsPage.waitForCatalogPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Adding Products To Cart");
                 configureProductsPage.addProductsToCart(updateQuantityAndApplyAdjustmentTestData["Products"]);
+                ReportsGenerationClass.LogInfo(test, "Added Products To Cart Successfully");
                 configureProductsPage.clickOnShoppingCart();
                 configureProductsPage.clickOnViewCartButton();
+
                 cartPage.waitForCartPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Cart page is loaded successfully");
                 IDevTools devTools = driver as IDevTools;
                 var session = devTools.GetDevToolsSession();
                 var domain = session.GetVersionSpecificDomains<DevToolsSessionDomains>();
@@ -266,14 +303,19 @@ namespace AutomationProject1.test
                         configJson = bodyResponse.Body;
                     }
                 };
+                ReportsGenerationClass.LogInfo(test, "Updating the Quantity");
                 cartPage.updateQuanityPerProduct(updateQuantityAndApplyAdjustmentTestData["updateQantityandAdjustMent"]);
+                ReportsGenerationClass.LogInfo(test, "Updated the Quantity Successfully");
+                ReportsGenerationClass.LogInfo(test, "Appling an Adjustment Type and Value");
                 cartPage.applyAdjustmentPerProduct(updateQuantityAndApplyAdjustmentTestData["updateQantityandAdjustMent"]);
+                ReportsGenerationClass.LogInfo(test, "Applied an Adjustment Type and Value Successfully");
                 cartPage.clickRepriceBtn();
                 cartPage.waitForUpdatingCart();
+                ReportsGenerationClass.LogInfo(test, "Updated Cart Succesfully");
                 cartPage.AssertUpdateQuantity(updateQuantityAndApplyAdjustmentTestData["updateQantityandAdjustMent"]);
 
                 // Wait for the specific request to finish
-                if (!string.IsNullOrEmpty(configJson))
+               /* if (!string.IsNullOrEmpty(configJson))
                 {
                     var parsedJson = JObject.Parse(configJson);
                     Console.WriteLine("parsedJson: " + parsedJson);
@@ -281,16 +323,18 @@ namespace AutomationProject1.test
                 else
                 {
                     Assert.Fail("configJson was not received.");
-                }
+                }*/
             }
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Task Completed.");
             }
         }
 
@@ -299,16 +343,15 @@ namespace AutomationProject1.test
         {
             test = extent.CreateTest("Abandon the cart");
             ReportsGenerationClass.LogInfo(test, "Starting Test - Abandon the cart");
-
             try
             {
                 jsonFilePath = Path.Combine(filePath, "Proposal", "Proposal.json");
                 var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
                 string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
                 var abandonCartTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["AbandonCartTestData"];
-
+                ReportsGenerationClass.LogInfo(test, "Clicking On New Button to Create a New Proposal");
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -319,6 +362,7 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal Created Successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalId = proposalDetailsPage.getProposalObjectId();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
@@ -328,21 +372,29 @@ namespace AutomationProject1.test
                 proposalDetailsPage.switchToNewWindow(originalWindowHandle);
 
                 configureProductsPage.waitForCatalogPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Adding Products To Cart");
                 configureProductsPage.addProductsToCart(abandonCartTestData["Products"]);
+                ReportsGenerationClass.LogInfo(test, "Added Products To Cart Successfully");
                 configureProductsPage.clickOnShoppingCart();
                 Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
                 configureProductsPage.clickOnViewCartButton();
+                cartPage.waitForCartPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Cart Page is Loaded Successfully");
+                ReportsGenerationClass.LogInfo(test, "Clicking on Abandon Cart Button");
                 configureProductsPage.clickOnAbandonCart();
                 configureProductsPage.clickOkButton();
+                ReportsGenerationClass.LogInfo(test, "Cart Abandoned Successfully");
             }
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Task Completed");
             }
 
         }
@@ -364,9 +416,9 @@ namespace AutomationProject1.test
                 var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
                 string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
                 var deleteProductTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["DeleteProductTestData"];
-
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to Create a New Proposal");
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -377,6 +429,7 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal Created Successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalId = proposalDetailsPage.getProposalObjectId();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
@@ -417,22 +470,29 @@ namespace AutomationProject1.test
                 };
 
                 configureProductsPage.waitForCatalogPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Adding Products To Cart");
                 configureProductsPage.addProductsToCart(deleteProductTestData["Products"]);
+                ReportsGenerationClass.LogInfo(test, "Added Products to Cart Successfully");
                 configureProductsPage.clickOnShoppingCart();
                 Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
                 configureProductsPage.clickOnViewCartButton();
                 cartPage.waitForCartPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Cart Page is Loaded Successfully");
+                ReportsGenerationClass.LogInfo(test, "Clicking on the Checkbox To Delete Product From Cart");
                 cartPage.clickOnCheckBox(deleteProductTestData["DeleteProducts"]);
                 configureProductsPage.clickOnDeleteIcon();
+                ReportsGenerationClass.LogInfo(test, "Product Deleted Successfully From Cart");
             }
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Task Completed.");
             }
 
         }
@@ -449,8 +509,7 @@ namespace AutomationProject1.test
                 var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
                 string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
                 var finalizeCartTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["FinalizeCartTestData"];
-               
-
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to Create a New Proposal");
                 proposalListPage.clickOnNewButton();
                 string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
                 createNewProposal
@@ -463,6 +522,7 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal Created Successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalId = proposalDetailsPage.getProposalObjectId();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
@@ -489,28 +549,37 @@ namespace AutomationProject1.test
                     }
                 };
                 configureProductsPage.waitForCatalogPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Adding Products To Cart");
                 configureProductsPage.addProductsToCart(finalizeCartTestData["Products"]);
+                ReportsGenerationClass.LogInfo(test, "Added Products To Cart Successfully");
                 configureProductsPage.clickOnShoppingCart();
-                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not Added to Cart");
                 configureProductsPage.clickOnViewCartButton();
                 cartPage.waitForCartPageToLoad();
-
+                ReportsGenerationClass.LogInfo(test, "Cart page is loaded successfully");
+                ReportsGenerationClass.LogInfo(test, "Clicking on finalize cart button");
                 cartPage.clickOnFinalize();
+                driver.Navigate().GoToUrl(ProposalDetailsPageUrl);
                 proposalDetailsPage.clickOnRelatedTab();
+                proposalDetailsPage.waitUntilClickConfigure();
 
-                proposalDetailsPage.waitForProposalDetailPageToLoad();
-                proposalDetailsPage.clickOnConfigureIcon();
+
+                //proposalDetailsPage.clickOnConfigureIcon();
+                ReportsGenerationClass.LogInfo(test, "Cart Finalized Successfully");
                 Assert.That("Finalized".Equals(proposalDetailsPage.CheckFinalize()), "Cart Is Not Finalized");
-            }
+             }
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
-            }
+                ReportsGenerationClass.LogInfo(test, "Task Completed.");
+             }
+
         }
 
         [Test(Author = "Jay Godhani", Description = "TC_1008 : Create a Favorite in cart")]
@@ -528,9 +597,9 @@ namespace AutomationProject1.test
                 var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
                 string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
                 var createFavoriteTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["CreateFavoriteTestData"];
-
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to Create a New Proposal");
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -541,6 +610,7 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal Created Successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalId = proposalDetailsPage.getProposalObjectId();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
@@ -568,12 +638,16 @@ namespace AutomationProject1.test
                     }
                 };
                 configureProductsPage.waitForCatalogPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Adding Products To Cart");
                 configureProductsPage.addProductsToCart(createFavoriteTestData["Products"]);
+                ReportsGenerationClass.LogInfo(test, "Added products to cart successfully");
                 configureProductsPage.clickOnShoppingCart();
                 Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
                 configureProductsPage.clickOnViewCartButton();
                 cartPage.waitForCartPageToLoad();
-
+                cartPage.waitForCartPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Cart page is loaded successfully");
+                ReportsGenerationClass.LogInfo(test, "Selecting all Products and Creating a Favorite");
                 configureProductsPage.clickOnSelectAllProduct();
                 favoritePage.clickOnFavorite();
 
@@ -583,6 +657,7 @@ namespace AutomationProject1.test
 
                 favoritePage.enterFavoriteName(resultString);
                 favoritePage.clickOnSaveBtn();
+                ReportsGenerationClass.LogInfo(test, "Favorite created successfully with name: " + resultString);
 
                 string responseJson = await tcs.Task;
 
@@ -599,12 +674,16 @@ namespace AutomationProject1.test
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Task Completed.");
             }
+
+        }
 
         }
 
@@ -621,9 +700,9 @@ namespace AutomationProject1.test
                 var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
                 string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
                 var massUpdateTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["MassUpdateTestData"];
-
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to create a new proposal");
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -634,6 +713,7 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal created successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalId = proposalDetailsPage.getProposalObjectId();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
@@ -643,7 +723,9 @@ namespace AutomationProject1.test
                 proposalDetailsPage.switchToNewWindow(originalWindowHandle);
 
                 configureProductsPage.waitForCatalogPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Adding products to cart");
                 configureProductsPage.addProductsToCart(massUpdateTestData["Products"]);
+                ReportsGenerationClass.LogInfo(test, "Added products to cart successfully");
                 configureProductsPage.clickOnShoppingCart();
                 Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
                 configureProductsPage.clickOnViewCartButton();
@@ -666,6 +748,8 @@ namespace AutomationProject1.test
                         configJson = bodyResponse.Body;
                     }
                 };
+                ReportsGenerationClass.LogInfo(test, "Cart page is loaded successfully");
+                ReportsGenerationClass.LogInfo(test, "Selecting all products to mass update");
                 configureProductsPage.clickOnSelectAllProduct();
                 cartPage.clickOnMassUpdate();
                 cartPage.updateQuantityInMassUpdate();
@@ -675,15 +759,18 @@ namespace AutomationProject1.test
                 cartPage.waitForProgressBarToComplete();
 
                 cartPage.waitForUpdatingCart();
+                ReportsGenerationClass.LogInfo(test, "Mass Updated is Completed Successfully");
             }
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Task Completed.");
             }
  
         }
@@ -703,7 +790,7 @@ namespace AutomationProject1.test
                 var addProductFromFavoriteTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["addProductFromFavoriteTestData"];
 
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -732,12 +819,16 @@ namespace AutomationProject1.test
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Task Completed.");
             }
+
+        }
 
         }
 
@@ -753,9 +844,9 @@ namespace AutomationProject1.test
                 var testData = (JObject.Parse(File.ReadAllText(jsonFilePath)))["Verify_TC_1001"];
                 string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
                 var cloneProductTestData = (JObject.Parse(File.ReadAllText(TestDatafilePath)))["cloneProductTestData"];
-
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to Create a New Proposal");
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -766,6 +857,7 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal Created Successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalId = proposalDetailsPage.getProposalObjectId();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
@@ -775,24 +867,30 @@ namespace AutomationProject1.test
                 proposalDetailsPage.switchToNewWindow(originalWindowHandle);
 
                 configureProductsPage.waitForCatalogPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Adding Products To Cart");
                 configureProductsPage.addProductsToCart(cloneProductTestData["Products"]);
+                ReportsGenerationClass.LogInfo(test, "Added Products To Cart Successfully");
                 configureProductsPage.clickOnShoppingCart();
-                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not added to cart");
+                Assert.That(configureProductsPage.checkNumberOfProductInCart(), Is.GreaterThan(0), "Product is not Added To Cart");
                 configureProductsPage.clickOnViewCartButton();
                 cartPage.waitForCartPageToLoad();
-
+                ReportsGenerationClass.LogInfo(test, "Cart Page is Loaded Successfully");
+                ReportsGenerationClass.LogInfo(test, "Selecting Products To Clone operation");
                 cartPage.clickOnCheckBox(cloneProductTestData["cloneProduct"]);
                 cartPage.clickOnCloneBtn();
+                ReportsGenerationClass.LogInfo(test, "Product Cloned Successfully");
                 cartPage.checkAssertionItemCloneOrNot(cloneProductTestData["cloneProduct"]);
             }
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Task Completed.");
             }
 
         }
@@ -811,9 +909,9 @@ namespace AutomationProject1.test
                 string TestDatafilePath = Path.Combine(solutionDirectory, "Main", "TestData/TestData.json");
 
                 var productData = JObject.Parse(File.ReadAllText(TestDatafilePath))["bundleProductsConstraintRule"];
-
+                ReportsGenerationClass.LogInfo(test, "Clicking on New Button to create a new proposal");
                 proposalListPage.clickOnNewButton();
-                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.GenerateRandom();
+                string newProposalName = testData["ProposalName"].ToString() + createNewProposal.currentDateAndTime();
                 createNewProposal
                     .waitTillSelectRecordTypePopupisLoaded()
                     .clickOnMenuItemFromRecordTypeDropDown(testData["RecordType"].ToString())
@@ -824,6 +922,7 @@ namespace AutomationProject1.test
                     .selectAccount(testData["Account"].ToString())
                     .selectPriceList(testData["PriceList"].ToString())
                     .clickOnSaveButton();
+                ReportsGenerationClass.LogInfo(test, "Proposal created successfully");
                 proposalDetailsPage.waitTillProposalDetailsPageisLoaded();
                 this.ProposalId = proposalDetailsPage.getProposalObjectId();
                 this.ProposalDetailsPageUrl = urlGenerator.GenerateProposalDetailsPageURL(proposalDetailsPage.getProposalObjectId());
@@ -834,20 +933,26 @@ namespace AutomationProject1.test
                 proposalDetailsPage.switchToNewWindow(originalWindowHandle);
 
                 configureProductsPage.waitForCatalogPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Adding Bundle Products To Cart");
                 configureProductsPage.addBundleProduct(productData, configureProductsPage);
                 configureProductsPage.clickOnGoTopricing();
+                ReportsGenerationClass.LogInfo(test, "Added Bundle Products To Cart Successfully");
                 cartPage.waitForCartPageToLoad();
+                ReportsGenerationClass.LogInfo(test, "Cart Page is Loaded Successfully");
+                ReportsGenerationClass.LogInfo(test, "Checking Option Products Added or Not");
                 cartPage.expandCaretIcon(productData);
                 cartPage.AssertConstraintRuleOptionProducts(productData);
             }
             catch (Exception ex)
             {
                 ReportsGenerationClass.LogFail(test, $"Test failed with exception: {ex.Message}");
+                throw new Exception($"Test failed with exception: {ex.Message}");
             }
             finally
             {
                 driver.Close();
                 driver.SwitchTo().Window(originalWindowHandle);
+                ReportsGenerationClass.LogInfo(test, "Task Completed.");
             }
 
         }

@@ -32,10 +32,22 @@ namespace cpq_ui_master.Main.pages.Catalog
             var jsonData = JObject.Parse(File.ReadAllText(jsonFilePath))["Verfity_TC_02"];
             foreach (var productCode in jsonData["ProductCodes"])
             {
-                configureProele.findProductsSearch.SendKeys(productCode.ToString() + Keys.Enter); 
-                WaitForElementToLoad(configureProele.addToCartButton, SelectorType.CssSelector, maxWaitTime);
-                configureProele.addToCartButtons.Click();
-                configureProele.findProductsSearch.Clear();
+                try
+                {
+                    configureProele.findProductsSearch.SendKeys(productCode.ToString() + Keys.Enter);
+                    WaitUntilElementIsInvisible("div.slds-spinner_container.ng-scope", SelectorType.CssSelector, maxWaitTime);
+                    WaitForElementToLoad(configureProele.addToCartButton, SelectorType.CssSelector, maxWaitTime);
+                    WaitUntillElementToBeClickble(configureProele.addToCartButton, SelectorType.CssSelector, maxWaitTime);
+                    IWebElement addProductToCartButton = driver.FindElement(By.CssSelector(configureProele.addToCartButton));
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", addProductToCartButton);
+                    configureProele.findProductsSearch.Clear();
+                }
+                catch (StaleElementReferenceException ex)
+                {
+                    IWebElement addProductToCartButton = driver.FindElement(By.CssSelector(configureProele.addToCartButton));
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", addProductToCartButton);
+                    configureProele.findProductsSearch.Clear();
+                }
             }
         }
 
@@ -67,31 +79,26 @@ namespace cpq_ui_master.Main.pages.Catalog
                 IWebElement ConfigureBtn = driver.FindElement(By.XPath(configureProele.configureButton));
                 ConfigureBtn.Click();
                 WaitForElementToLoad("//md-pagination-wrapper//md-tab-item", SelectorType.XPath, maxWaitTime);
-
                 IList<IWebElement> optionGroupNames = driver.FindElements(By.XPath("//md-pagination-wrapper//md-tab-item"));
                 this.optionGroupName = new List<string>();
                 foreach (var optionGroupName in optionGroupNames)
                 {
                     this.optionGroupName.Add(optionGroupName.Text);
                 }
-
                 // Add option products for each bundle
                 addOptionProductsFromJson(productData, configureProductsPage);
-
                 if (count < totalRecord)
                 {
                     clickOnAddMoreProducts();
                     waitForCatalogPageToLoad();
                     count++;
                 }
-
-
             }
         }
         public void clickOnAddMoreProducts()
         {
 
-            WaitUntillElementToBeClickbleForXpath("//button[@buttonid='id_task_left_addmoreproducts']", maxWaitTime);
+            WaitUntillElementToBeClickble("//button[@buttonid='id_task_left_addmoreproducts']",SelectorType.XPath, maxWaitTime);
             WaitForElementToLoad("//button[@buttonid='id_task_left_addmoreproducts']", SelectorType.XPath, maxWaitTime);
             IWebElement addProductsButtons = driver.FindElement(By.XPath("//button[@buttonid='id_task_left_addmoreproducts']"));
             addProductsButtons.Click();
@@ -165,8 +172,8 @@ namespace cpq_ui_master.Main.pages.Catalog
             IWebElement validateBtn = driver.FindElement(By.CssSelector(configureProele.validateButton));
             validateBtn.Click();
 
-            WaitUntilElementIsInvisible(configureProele.validateMessagePath);
-            WaitUntillElementToBeClickble("button.GoToPricing", maxWaitTime);
+            WaitUntilElementIsInvisible(configureProele.validateMessagePath, SelectorType.CssSelector, maxWaitTime);
+            WaitUntillElementToBeClickble("button.GoToPricing",SelectorType.CssSelector, maxWaitTime);
             WaitForElementToLoad("button.GoToPricing", SelectorType.CssSelector, maxWaitTime);
             IWebElement goToPricing = driver.FindElement(By.CssSelector("button.GoToPricing"));
             goToPricing.Click();
@@ -183,13 +190,12 @@ namespace cpq_ui_master.Main.pages.Catalog
 
         public void waitForCatalogPageToLoad()
         {
-            FluentWaitUntilElementVisibleForXpath(configureProele.searchProduct, maxWaitTime);
+            fluentWaitUntilElementIsVisible(configureProele.searchProduct,SelectorType.XPath, maxWaitTime);
         }
 
         public void clickOnShoppingCart()
         {
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30)); // Adjust the timeout as needed
-
             // Wait until the totalValue is greater than zero
             wait.Until(driver =>
             {
@@ -241,10 +247,22 @@ namespace cpq_ui_master.Main.pages.Catalog
         {
             foreach (var productCode in productNames)
             {
-                configureProele.findProductsSearch.SendKeys(productCode.ToString() + Keys.Enter);
-                WaitForElementToLoad(configureProele.addToCartButton, SelectorType.CssSelector, maxWaitTime);
-                configureProele.addToCartButtons.Click();
-                configureProele.findProductsSearch.Clear();
+                try
+                {
+                    configureProele.findProductsSearch.SendKeys(productCode.ToString() + Keys.Enter);
+                    WaitUntilElementIsInvisible("div.slds-spinner_container.ng-scope",SelectorType.CssSelector,maxWaitTime);
+                    WaitForElementToLoad(configureProele.addToCartButton, SelectorType.CssSelector, maxWaitTime);
+                    WaitUntillElementToBeClickble(configureProele.addToCartButton, SelectorType.CssSelector,maxWaitTime);
+                    IWebElement addProductToCartButton = driver.FindElement(By.CssSelector(configureProele.addToCartButton));
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", addProductToCartButton);
+                    configureProele.findProductsSearch.Clear();
+            }
+                catch (StaleElementReferenceException ex)
+                {
+                    IWebElement addProductToCartButton = driver.FindElement(By.CssSelector(configureProele.addToCartButton));
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", addProductToCartButton);
+                    configureProele.findProductsSearch.Clear();
+                }
             }
         }
 
